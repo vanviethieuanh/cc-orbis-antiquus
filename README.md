@@ -146,9 +146,9 @@ Instead of strict panel splitting, define logical regions:
 
 ---
 
-## 🏗️ 3. Architecture
+## 3. Architecture
 
-### Core Language: Rust 🦀
+### Core Language: Rust
 
 Used for:
 
@@ -188,7 +188,7 @@ Used for:
 
 ---
 
-## 🎨 4. Design Principles
+## 4. Design Principles
 
 ### Historical Authenticity > Mathematical Perfection
 
@@ -207,7 +207,7 @@ Used for:
 
 ---
 
-## 🔮 Future Ideas / Extensions
+## Future Ideas / Extensions
 
 - Multiple projection support
 - Style presets (Chinese, European, Islamic maps)
@@ -217,7 +217,7 @@ Used for:
 
 ---
 
-## 🚀 Roadmap
+## Roadmap
 
 ### Phase 1
 
@@ -244,7 +244,7 @@ Used for:
 
 ---
 
-## 📌 Notes
+## Notes
 
 This project is not just about maps — it is about reconstructing:
 
