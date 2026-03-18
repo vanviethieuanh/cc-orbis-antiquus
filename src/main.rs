@@ -1,10 +1,12 @@
 mod cli;
+mod overlay;
 mod projections;
 mod render;
 
+use ab_glyph::{FontRef, PxScale};
 use clap::Parser;
 use cli::Cli;
-use image::{Rgb, RgbImage};
+use image::{Rgba, RgbaImage};
 use shapefile::Reader;
 use std::error::Error;
 
@@ -15,11 +17,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let margin = args.margin;
     let d = args.distance;
 
+    let font = FontRef::try_from_slice(include_bytes!("../data/fonts/LXGWWenKaiTC-Regular.ttf"))?;
+    let font_scale = PxScale::from(20.0);
+
     let size = ((r_earth + margin) * 2.0) as u32;
-    let mut img = RgbImage::new(size, size);
+    let mut img = RgbaImage::new(size, size);
 
     for pixel in img.pixels_mut() {
-        *pixel = Rgb([255, 255, 255]);
+        *pixel = Rgba([255, 255, 255, 255]);
     }
 
     let mut reader = Reader::from_path(&args.input)?;
@@ -46,6 +51,19 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
         }
     }
+
+    let r_proj = projections::max_projected_radius(r_earth, d);
+    overlay::draw_degree_ring(
+        &mut img,
+        r_proj,
+        margin + (r_earth - r_proj),
+        36,
+        16.0,
+        font_scale,
+        &font,
+        r_earth,
+        d,
+    );
 
     img.save(&args.output)?;
     println!("Saved {}", args.output);

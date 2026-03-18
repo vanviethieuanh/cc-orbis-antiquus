@@ -1,8 +1,8 @@
-use image::{Rgb, RgbImage};
+use image::{Rgba, RgbaImage};
 use imageproc::drawing::draw_line_segment_mut;
 
 pub fn draw_segment(
-    img: &mut RgbImage,
+    img: &mut RgbaImage,
     prev: Option<(f32, f32, bool)>,
     curr: (f32, f32, bool),
     margin: f32,
@@ -15,7 +15,7 @@ pub fn draw_segment(
                 img,
                 (px + margin, py + margin),
                 (cx + margin, cy + margin),
-                Rgb([0, 0, 0]),
+                Rgba([0, 0, 0, 255]),
             );
         }
     }
