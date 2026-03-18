@@ -75,7 +75,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    img.save("world_map.jpg")?;
+    img.save("out/world_map.jpg")?;
     println!("Saved world_map.jpg");
 
     Ok(())
