@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut img = RgbaImage::new(size, size);
 
     for pixel in img.pixels_mut() {
-        *pixel = Rgba([255, 255, 255, 255]);
+        *pixel = Rgba([230, 211, 169, 255]);
     }
 
     let mut reader = Reader::from_path(&args.input)?;

@@ -34,7 +34,7 @@ pub fn draw_degree_ring(
         let color = if i % 2 == 0 {
             Rgba([0, 0, 0, 255])
         } else {
-            Rgba([255, 255, 255, 255])
+            Rgba([230, 211, 169, 255])
         };
 
         fill_arc_segment(img, cx, cy, r, r + thickness, theta0, theta1, color);
