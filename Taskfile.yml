@@ -6,6 +6,18 @@ tasks:
   default:
     deps:
       - setup
+      - build
+    cmds:
+      - task: run
+
+  run:
+    cmds:
+      - echo "Starting"
+      - target/debug/cc-orbis-antiquus
+
+  build:
+    cmds:
+      - cargo build
 
   setup:
     cmds:
@@ -18,6 +30,9 @@ tasks:
     internal: true
     desc: "Download and extract Natural Earth 110m land shapefile with ETag/resume support"
     dir: data/raw/natural-earth
+    sources:
+      - ne_110m_land.zip
+      - ne_110m_land.zip.etag
     cmds:
       - |
         URL="https://naciscdn.org/naturalearth/110m/physical/ne_110m_land.zip"
