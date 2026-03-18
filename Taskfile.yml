@@ -2,6 +2,9 @@
 
 version: "3"
 
+vars:
+  SCALE: 50m
+
 tasks:
   default:
     deps:
@@ -13,7 +16,7 @@ tasks:
   run:
     cmds:
       - echo "Starting"
-      - target/debug/cc-orbis-antiquus
+      - target/debug/cc-orbis-antiquus -i data/raw/natural_earth/ne_{{.SCALE}}_land/ne_{{.SCALE}}_land.shp
 
   build:
     cmds:
@@ -28,15 +31,15 @@ tasks:
 
   download_natural_earth:
     internal: true
-    desc: "Download and extract Natural Earth 110m land shapefile with ETag/resume support"
+    desc: "Download and extract Natural Earth {{.SCALE}} land shapefile with ETag/resume support"
     dir: data/raw/natural_earth
     sources:
-      - ne_110m_land.zip
-      - ne_110m_land.zip.etag
+      - ne_{{.SCALE}}_land.zip
+      - ne_{{.SCALE}}_land.zip.etag
     cmds:
       - |
-        URL="https://naciscdn.org/naturalearth/110m/physical/ne_110m_land.zip"
-        OUT="ne_110m_land.zip"
+        URL="https://naciscdn.org/naturalearth/{{.SCALE}}/physical/ne_{{.SCALE}}_land.zip"
+        OUT="ne_{{.SCALE}}_land.zip"
 
         curl -L \
           --etag-save "$OUT.etag" \
@@ -46,5 +49,5 @@ tasks:
           "$URL"
 
         if [ -f "$OUT" ]; then
-          unzip -o "$OUT" -d ne_110m_land
+          unzip -o "$OUT" -d ne_{{.SCALE}}_land
         fi
