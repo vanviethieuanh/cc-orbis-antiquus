@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+tasks:
+  default:
+    deps:
+      - setup
+
+  setup:
+    cmds:
+      - echo "Setting up ..."
+
+      - mkdir -p data/raw/natural-earth
+      - task: download_natural_earth
+
+  download_natural_earth:
+    internal: true
+    desc: "Download and extract Natural Earth 110m land shapefile with ETag/resume support"
+    dir: data/raw/natural-earth
+    cmds:
+      - |
+        URL="https://naciscdn.org/naturalearth/110m/physical/ne_110m_land.zip"
+        OUT="ne_110m_land.zip"
+
+        curl -L \
+          --etag-save "$OUT.etag" \
+          --etag-compare "$OUT.etag" \
+          -z "$OUT" \
+          -o "$OUT" \
+          "$URL"
+
+        if [ -f "$OUT" ]; then
+          unzip -o "$OUT" -d ne_110m_land
+        fi
