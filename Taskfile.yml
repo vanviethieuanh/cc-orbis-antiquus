@@ -23,13 +23,13 @@ tasks:
     cmds:
       - echo "Setting up ..."
 
-      - mkdir -p data/raw/natural-earth
+      - mkdir -p data/raw/natural_earth
       - task: download_natural_earth
 
   download_natural_earth:
     internal: true
     desc: "Download and extract Natural Earth 110m land shapefile with ETag/resume support"
-    dir: data/raw/natural-earth
+    dir: data/raw/natural_earth
     sources:
       - ne_110m_land.zip
       - ne_110m_land.zip.etag

@@ -5,4 +5,7 @@ edition = "2024"
 
 [dependencies]
 geo = "0.32.0"
+image = "0.25.10"
+imageproc = "0.26.1"
+proj = "0.31.0"
 shapefile = "0.7.0"
