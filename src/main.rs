@@ -1,72 +1,42 @@
 mod cli;
 mod overlay;
 mod projections;
-mod render;
+mod render_bevy;
 
-use ab_glyph::{FontRef, PxScale};
+use bevy::prelude::*;
+use bevy::window::WindowResolution;
 use clap::Parser;
 use cli::Cli;
-use image::{Rgba, RgbaImage};
-use shapefile::Reader;
-use std::error::Error;
+use render_bevy::{setup_camera, MapSettings};
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let args = Cli::parse();
+fn main() {
+    let cli = Cli::parse();
+    let (width, height) = cli.compute_window_size();
 
-    let r_earth = args.radius;
-    let margin = args.margin;
-    let d = args.distance;
+    let background_color = Color::srgb(230.0 / 255.0, 211.0 / 255.0, 169.0 / 255.0);
 
-    let font = FontRef::try_from_slice(include_bytes!("../data/fonts/LXGWWenKaiTC-Regular.ttf"))?;
-    let font_scale = PxScale::from(20.0);
+    App::new()
+        .insert_resource(ClearColor(background_color))
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                resolution: WindowResolution::new(width, height),
+                title: "cc-orbis-antiquus".to_string(),
+                ..default()
+            }),
+            ..default()
+        }))
+        .insert_resource(MapSettings { cli })
+        .add_systems(Startup, (setup_camera, setup_map_wrapper))
+        .run();
+}
 
-    let size = ((r_earth + margin) * 2.0) as u32;
-    let mut img = RgbaImage::new(size, size);
-
-    for pixel in img.pixels_mut() {
-        *pixel = Rgba([230, 211, 169, 255]);
+fn setup_map_wrapper(
+    commands: Commands,
+    meshes: ResMut<Assets<Mesh>>,
+    materials: ResMut<Assets<ColorMaterial>>,
+    settings: Res<MapSettings>,
+) {
+    if let Err(e) = render_bevy::setup_map(commands, meshes, materials, settings) {
+        eprintln!("Error loading map: {}", e);
     }
-
-    let mut reader = Reader::from_path(&args.input)?;
-
-    for result in reader.iter_shapes_and_records() {
-        let (shape, _) = result?;
-
-        if let shapefile::Shape::Polygon(poly) = shape {
-            for ring in poly.rings() {
-                let mut prev = None;
-
-                for point in ring.points() {
-                    let lon = point.x as f32;
-                    let lat = point.y as f32;
-
-                    if args.north_only && lat < 0.0 {
-                        continue;
-                    }
-
-                    let p = projections::perspective_pole(r_earth, lon, lat, d);
-
-                    prev = render::draw_segment(&mut img, prev, (p.x, p.y, p.visible), margin);
-                }
-            }
-        }
-    }
-
-    let r_proj = projections::max_projected_radius(r_earth, d);
-    overlay::draw_degree_ring(
-        &mut img,
-        r_proj,
-        margin + (r_earth - r_proj),
-        36,
-        16.0,
-        font_scale,
-        &font,
-        r_earth,
-        d,
-    );
-
-    img.save(&args.output)?;
-    println!("Saved {}", args.output);
-
-    Ok(())
 }

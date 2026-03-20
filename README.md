@@ -219,28 +219,67 @@ Used for:
 
 ## Roadmap
 
-### Phase 1
+### Phase 1: Bevy Migration (Static Rendering)
 
-- Load GeoJSON
-- Implement projection
-- Basic SVG rendering
+**Goal**: Migrate from CPU-based `image` + `imageproc` to Bevy's GPU-accelerated 2D renderer.
 
-### Phase 2
+**Tasks**:
+- Set up Bevy project structure with core ECS setup
+- Migrate coastline projection logic (keep `projections.rs` unchanged)
+- Implement `setup()` startup system to render static map via `Mesh2d` + `ColorMaterial`
+- Migrate Chinese text overlay rendering using Bevy's `Text2d` component
+- Replace PNG output with interactive window rendering
+- Verify visual parity with reference Kunyu Wanguo Quantu map
+- Update CLI to control viewport/resolution instead of file output
 
-- Stylized coastlines
+**Output**: Static map rendering in Bevy window with improved anti-aliasing and font quality.
+
+---
+
+### Phase 2: Dynamic Foundation (Update Loop)
+
+- Implement asset loading system (fonts, textures)
+- Design entity-based architecture for future map layers
+- Add interactive pan/zoom controls
+- Prepare shader architecture for advanced effects
+
+---
+
+### Phase 3: Stylized Rendering + Effects
+
+- Hand-drawn coastline simulation
 - Mountain symbol system
-- Text placement
+- Weather effects (clouds, day/night cycles)
+- Animated celestial movements (stars, planets)
+- Bird flight patterns
 
-### Phase 3
+---
 
-- Layout system
-- Decorative elements
-- FX pipeline
+### Phase 4: Advanced Features
 
-### Phase 4
+- Multi-map support with style abstraction
+- Procedural calligraphy
+- Decorative element library
+- Post-processing effects (paper texture, aged ink)
 
-- Multi-map support
-- Style abstraction
+---
+
+## Technical Notes
+
+### Migration Strategy
+
+- **Preserve**: Projection math (`projections.rs`), CLI structure (`cli.rs`)
+- **Replace**: `image` + `imageproc` → Bevy 2D rendering (`Mesh2d`, `Text2d`)
+- **Architecture**: Startup system for static setup + update systems for future dynamics
+- **Anti-aliasing**: GPU-accelerated (automatic in Bevy)
+- **Font Rendering**: Bevy asset system with OpenType support
+- **Removed**: Latitude radial lines in degree ring (as per design preference)
+
+### Known Issues Addressed
+
+- macOS file path compatibility (resource bundling via Bevy asset system)
+- Improved rendering quality through GPU acceleration
+- Better text rendering and rotation via transform system
 
 ---
 
