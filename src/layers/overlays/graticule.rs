@@ -31,24 +31,14 @@ pub fn setup_circle_graticule_grid(
             let x_inner = start_radius * angle.sin();
             let y_inner = -start_radius * angle.cos();
 
-            let positions = vec![
-                Vec3::new(x_inner, y_inner, 0.0),
-                Vec3::new(x_outer, y_outer, 0.0),
-            ];
-
-            let mut line_mesh = Mesh::new(
-                PrimitiveTopology::LineStrip,
-                RenderAssetUsages::RENDER_WORLD,
-            );
-            line_mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
-
-            let mesh_handle = (&mut meshes).add(line_mesh);
-            let material_handle =
-                (&mut color_materials).add(ColorMaterial::from_color(grid.meridian_color));
+            let mesh_handle = (&mut meshes).add(Segment2d::new(
+                Vec2::new(x_inner, y_inner),
+                Vec2::new(x_outer, y_outer),
+            ));
 
             (&mut commands).spawn((
                 Mesh2d(mesh_handle),
-                MeshMaterial2d(material_handle),
+                MeshMaterial2d(color_materials.add(grid.meridian_color)),
                 Transform::default().with_translation(Vec3::new(0.0, 0.0, z_index)),
             ));
         }
