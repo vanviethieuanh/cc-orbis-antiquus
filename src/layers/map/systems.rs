@@ -8,7 +8,7 @@ pub fn setup_map_system(
     materials: ResMut<Assets<ColorMaterial>>,
     settings: Res<MapSettings>,
 ) {
-    if let Err(e) = geospatial::setup_map(commands, meshes, materials, settings) {
+    if let Err(e) = geospatial::setup_map(commands, meshes, materials, settings, 1.0) {
         eprintln!("Error loading map: {}", e);
     }
 }

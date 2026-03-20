@@ -15,6 +15,7 @@ pub fn setup_map(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     settings: Res<MapSettings>,
+    z_index: f32,
 ) -> Result<(), Box<dyn Error>> {
     let cli = &settings.cli;
     let r_earth = cli.radius;
@@ -53,6 +54,7 @@ pub fn setup_map(
                             &mut materials,
                             &current_strip,
                             COASTLINE_COLOR,
+                            z_index,
                         );
                         current_strip.clear();
                     }
@@ -64,118 +66,10 @@ pub fn setup_map(
                     &mut materials,
                     &current_strip,
                     COASTLINE_COLOR,
+                    z_index,
                 );
             }
         }
-    }
-
-    setup_degree_ring(&mut commands, meshes, materials, r_earth, d)?;
-
-    Ok(())
-}
-
-fn setup_degree_ring(
-    commands: &mut Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    r_earth: f32,
-    d: f32,
-) -> Result<(), Box<dyn Error>> {
-    let r_proj = projections::max_projected_radius(r_earth, d);
-    let thickness = 16.0;
-
-    let outer_radius = (r_proj + 4.0 * thickness) as f32;
-    let circle_segments = 128;
-
-    let mut circle_positions = Vec::new();
-    for i in 0..=circle_segments {
-        let angle = (i as f32 / circle_segments as f32) * std::f32::consts::TAU;
-        let x = outer_radius * angle.cos();
-        let y = outer_radius * angle.sin();
-        circle_positions.push(Vec3::new(x, y, 0.0));
-    }
-
-    if !circle_positions.is_empty() {
-        let mut circle_mesh = Mesh::new(
-            PrimitiveTopology::LineStrip,
-            RenderAssetUsages::RENDER_WORLD,
-        );
-        circle_mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, circle_positions);
-
-        let mesh_handle = meshes.add(circle_mesh);
-        let material_handle = materials.add(ColorMaterial::from_color(Color::BLACK));
-
-        commands.spawn((
-            Mesh2d(mesh_handle),
-            MeshMaterial2d(material_handle),
-            Transform::default(),
-        ));
-    }
-
-    for i in (5..9).rev() {
-        let parallel_r =
-            (projections::parallel_ratio(i as f32 * 10.0, r_earth, d) * r_earth) as f32;
-
-        let mut parallel_positions = Vec::new();
-        for j in 0..=circle_segments {
-            let angle = (j as f32 / circle_segments as f32) * std::f32::consts::TAU;
-            let x = parallel_r * angle.cos();
-            let y = parallel_r * angle.sin();
-            parallel_positions.push(Vec3::new(x, y, 0.0));
-        }
-
-        if !parallel_positions.is_empty() {
-            let mut parallel_mesh = Mesh::new(
-                PrimitiveTopology::LineStrip,
-                RenderAssetUsages::RENDER_WORLD,
-            );
-            parallel_mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, parallel_positions);
-
-            let mesh_handle = meshes.add(parallel_mesh);
-            let material_handle = materials.add(ColorMaterial::from_color(Color::srgb(
-                120.0 / 255.0,
-                120.0 / 255.0,
-                120.0 / 255.0,
-            )));
-
-            commands.spawn((
-                Mesh2d(mesh_handle),
-                MeshMaterial2d(material_handle),
-                Transform::default(),
-            ));
-        }
-    }
-
-    let sections = 36;
-    for i in 0..sections {
-        let angle = (i as f32 / sections as f32) * std::f32::consts::TAU;
-        let parallel_80th_r = (projections::parallel_ratio(80.0, r_earth, d) * r_earth) as f32;
-
-        let x0 = parallel_80th_r * angle.sin();
-        let y0 = -parallel_80th_r * angle.cos();
-        let x1 = (r_proj + 4.0 * thickness) * angle.sin();
-        let y1 = -(r_proj + 4.0 * thickness) * angle.cos();
-
-        let positions = vec![Vec3::new(x0, y0, 0.0), Vec3::new(x1, y1, 0.0)];
-
-        let mut line_mesh = Mesh::new(
-            PrimitiveTopology::LineStrip,
-            RenderAssetUsages::RENDER_WORLD,
-        );
-        line_mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
-
-        let mesh_handle = meshes.add(line_mesh);
-        let material_handle = materials.add(ColorMaterial::from_color(Color::srgb(
-            120.0 / 255.0,
-            120.0 / 255.0,
-            120.0 / 255.0,
-        )));
-
-        commands.spawn((
-            Mesh2d(mesh_handle),
-            MeshMaterial2d(material_handle),
-            Transform::default(),
-        ));
     }
 
     Ok(())
@@ -187,6 +81,7 @@ fn spawn_line_strip(
     materials: &mut ResMut<Assets<ColorMaterial>>,
     positions: &Vec<Vec3>,
     color: Color,
+    z_index: f32,
 ) {
     if positions.len() < 2 {
         return;
@@ -202,6 +97,6 @@ fn spawn_line_strip(
     commands.spawn((
         Mesh2d(meshes.add(mesh)),
         MeshMaterial2d(materials.add(ColorMaterial::from_color(color))),
-        Transform::default(),
+        Transform::default().with_translation(Vec3::new(0.0, 0.0, z_index)),
     ));
 }

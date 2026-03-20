@@ -1,15 +1,18 @@
 mod cli;
-mod setup;
 mod ecs;
 mod layers;
+mod setup;
 
 use bevy::prelude::*;
 use bevy::window::WindowResolution;
 use clap::Parser;
 use cli::Cli;
 use ecs::MapSettings;
-use setup::setup_camera;
 use layers::map::setup_map_system;
+use layers::outlines::setup_outlines_system;
+use layers::overlays::setup_overlays_system;
+use layers::paper::setup_paper_system;
+use setup::setup_camera;
 
 fn main() {
     let cli = Cli::parse();
@@ -28,6 +31,15 @@ fn main() {
             ..default()
         }))
         .insert_resource(MapSettings { cli })
-        .add_systems(Startup, (setup_camera, setup_map_system))
+        .add_systems(
+            Startup,
+            (
+                setup_camera,
+                setup_outlines_system,
+                setup_map_system,
+                setup_overlays_system,
+                setup_paper_system,
+            ),
+        )
         .run();
 }
