@@ -1,7 +1,7 @@
+use super::components::CircleGraticuleGrid;
 use bevy::asset::RenderAssetUsages;
 use bevy::mesh::PrimitiveTopology;
 use bevy::prelude::*;
-use super::components::CircleGraticuleGrid;
 
 const CIRCLE_SEGMENTS: usize = 128;
 
@@ -13,7 +13,7 @@ pub fn setup_circle_graticule_grid(
     parallel_ratio_fn: impl Fn(f32) -> f32,
     z_index: f32,
 ) {
-    // Draw meridians (straight lines from center to outer circle)
+    // Draw meridians (straight lines from highest parallel to outer circle, or from center if no parallels)
     draw_meridians(
         &mut commands,
         &mut meshes,
@@ -21,6 +21,8 @@ pub fn setup_circle_graticule_grid(
         grid.radius,
         grid.meridians,
         grid.meridian_color,
+        &grid.parallels,
+        &parallel_ratio_fn,
         z_index,
     );
 
@@ -128,14 +130,28 @@ fn draw_meridians(
     radius: f32,
     meridian_count: u32,
     color: Color,
+    parallels: &[f32],
+    parallel_ratio_fn: &dyn Fn(f32) -> f32,
     z_index: f32,
 ) {
+    // Determine starting radius: if parallels exist, start from the highest latitude parallel; otherwise start from center
+    let start_radius = if let Some(&highest_latitude) = parallels.last() {
+        parallel_ratio_fn(highest_latitude) * radius
+    } else {
+        0.0
+    };
+
     for i in 0..meridian_count {
         let angle = (i as f32 / meridian_count as f32) * std::f32::consts::TAU;
-        let x = radius * angle.sin();
-        let y = -radius * angle.cos();
+        let x_outer = radius * angle.sin();
+        let y_outer = -radius * angle.cos();
+        let x_inner = start_radius * angle.sin();
+        let y_inner = -start_radius * angle.cos();
 
-        let positions = vec![Vec3::new(0.0, 0.0, 0.0), Vec3::new(x, y, 0.0)];
+        let positions = vec![
+            Vec3::new(x_inner, y_inner, 0.0),
+            Vec3::new(x_outer, y_outer, 0.0),
+        ];
 
         let mut line_mesh = Mesh::new(
             PrimitiveTopology::LineStrip,
