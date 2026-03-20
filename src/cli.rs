@@ -1,8 +1,8 @@
 use clap::Parser;
 
-#[derive(Parser, Debug)]
-#[command(name = "map-art")]
-#[command(about = "Render map projection to image", long_about = None)]
+#[derive(Parser, Debug, Clone)]
+#[command(name = "cc-orbis-antiquus")]
+#[command(about = "Render historical world maps", long_about = None)]
 pub struct Cli {
     /// Input shapefile (.shp)
     #[arg(
@@ -12,12 +12,16 @@ pub struct Cli {
     )]
     pub input: String,
 
-    /// Output image path
-    #[arg(short, long, default_value = "out/world_map.png")]
-    pub output: String,
+    /// Window width / render resolution
+    #[arg(long)]
+    pub width: Option<u32>,
 
-    /// Earth radius (controls image size)
-    #[arg(long, default_value_t = 1000.0)]
+    /// Window height / render resolution
+    #[arg(long)]
+    pub height: Option<u32>,
+
+    /// Earth radius (controls map size)
+    #[arg(long, default_value_t = 560.0)]
     pub radius: f32,
 
     /// Margin around the map
@@ -31,4 +35,13 @@ pub struct Cli {
     /// Only render northern hemisphere
     #[arg(long, default_value_t = true)]
     pub north_only: bool,
+}
+
+impl Cli {
+    pub fn compute_window_size(&self) -> (u32, u32) {
+        let base_size = ((self.radius + self.margin) * 2.0) as u32;
+        let width = self.width.unwrap_or(base_size);
+        let height = self.height.unwrap_or(base_size);
+        (width, height)
+    }
 }
