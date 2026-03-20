@@ -4,9 +4,9 @@ use bevy::prelude::*;
 use shapefile::Reader;
 use std::error::Error;
 
+use super::projections;
 use crate::cli::Cli;
 use crate::ecs::MapSettings;
-use super::projections;
 
 const COASTLINE_COLOR: Color = Color::BLACK;
 
