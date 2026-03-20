@@ -5,18 +5,10 @@ use shapefile::Reader;
 use std::error::Error;
 
 use crate::cli::Cli;
-use crate::projections::{self};
+use crate::ecs::MapSettings;
+use super::projections;
 
 const COASTLINE_COLOR: Color = Color::BLACK;
-
-#[derive(Resource)]
-pub struct MapSettings {
-    pub cli: Cli,
-}
-
-pub fn setup_camera(mut commands: Commands) {
-    commands.spawn(Camera2d::default());
-}
 
 pub fn setup_map(
     mut commands: Commands,

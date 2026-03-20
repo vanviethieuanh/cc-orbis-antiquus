@@ -1,13 +1,15 @@
 mod cli;
-mod overlay;
-mod projections;
-mod render_bevy;
+mod setup;
+mod ecs;
+mod layers;
 
 use bevy::prelude::*;
 use bevy::window::WindowResolution;
 use clap::Parser;
 use cli::Cli;
-use render_bevy::{setup_camera, MapSettings};
+use ecs::MapSettings;
+use setup::setup_camera;
+use layers::map::setup_map_system;
 
 fn main() {
     let cli = Cli::parse();
@@ -26,17 +28,6 @@ fn main() {
             ..default()
         }))
         .insert_resource(MapSettings { cli })
-        .add_systems(Startup, (setup_camera, setup_map_wrapper))
+        .add_systems(Startup, (setup_camera, setup_map_system))
         .run();
-}
-
-fn setup_map_wrapper(
-    commands: Commands,
-    meshes: ResMut<Assets<Mesh>>,
-    materials: ResMut<Assets<ColorMaterial>>,
-    settings: Res<MapSettings>,
-) {
-    if let Err(e) = render_bevy::setup_map(commands, meshes, materials, settings) {
-        eprintln!("Error loading map: {}", e);
-    }
 }
