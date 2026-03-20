@@ -11,6 +11,7 @@ pub struct CircleGraticuleGrid {
     pub meridian_color: Color,
     pub parallel_color: Color,
     pub boundary_thickness: f32,
+    pub graticule_ring_thickness: f32,
 }
 
 impl CircleGraticuleGrid {
@@ -22,7 +23,8 @@ impl CircleGraticuleGrid {
             meridian_color: PARCHMENT_INK,
             parallel_color: PARCHMENT_INK,
             boundary_color: PARCHMENT_INK,
-            boundary_thickness: 2.0,
+            boundary_thickness: 1.0,
+            graticule_ring_thickness: 6.0,
         }
     }
 

@@ -1,3 +1,4 @@
+use crate::render::indicator::{spawn_graticule_ring, GraticuleRingMaterial};
 use crate::render::primitives::circle::{spawn_circle, CircleMaterial};
 
 use super::components::CircleGraticuleGrid;
@@ -10,6 +11,7 @@ pub fn setup_circle_graticule_grid(
     mut meshes: ResMut<Assets<Mesh>>,
     mut color_materials: ResMut<Assets<ColorMaterial>>,
     mut circle_materials: ResMut<Assets<CircleMaterial>>,
+    mut graticule_ring_materials: ResMut<Assets<GraticuleRingMaterial>>,
     grid: &CircleGraticuleGrid,
     parallel_ratio_fn: impl Fn(f32) -> f32,
     z_index: f32,
@@ -70,13 +72,42 @@ pub fn setup_circle_graticule_grid(
         }
     };
 
-    // Outer boundary circle
+    // First boundary circle
     spawn_circle(
         &mut commands,
         &mut meshes,
         &mut circle_materials,
         Vec3::new(0.0, 0.0, z_index),
         2.0 * grid.radius,
+        grid.boundary_thickness,
+        0.5,
+        grid.boundary_color.into(),
+        Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
+    );
+
+    // spawn_graticule_ring
+    spawn_graticule_ring(
+        &mut commands,
+        &mut meshes,
+        &mut graticule_ring_materials,
+        Vec3::new(0.0, 0.0, z_index),
+        // 0.9 make the right slightly tigher to inner border, avoid render leak create a
+        //   slight white ring.
+        2.0 * (grid.radius + grid.graticule_ring_thickness * 0.9),
+        360.,
+        grid.graticule_ring_thickness,
+        0.5,
+        0.025,
+        grid.boundary_color.into(),
+    );
+
+    // First boundary circle
+    spawn_circle(
+        &mut commands,
+        &mut meshes,
+        &mut circle_materials,
+        Vec3::new(0.0, 0.0, z_index),
+        2.0 * (grid.radius + grid.graticule_ring_thickness),
         grid.boundary_thickness,
         0.5,
         grid.boundary_color.into(),

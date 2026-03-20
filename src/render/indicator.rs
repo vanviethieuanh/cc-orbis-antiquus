@@ -11,21 +11,22 @@ use bevy::{
 };
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
-pub struct CircleMaterial {
+pub struct GraticuleRingMaterial {
     #[uniform(0)]
-    pub border_color: LinearRgba,
+    pub divisions: f32,
     #[uniform(1)]
-    pub fill_color: LinearRgba,
-
+    pub color: LinearRgba,
     #[uniform(2)]
-    pub border_thickness: f32,
+    pub thickness: f32,
     #[uniform(3)]
     pub smoothness: f32,
+    #[uniform(4)]
+    pub divisions_smoothness: f32,
 }
 
-impl Material2d for CircleMaterial {
+impl Material2d for GraticuleRingMaterial {
     fn fragment_shader() -> bevy::shader::ShaderRef {
-        "shaders/primitives/circle.wgsl".into()
+        "shaders/graticule_ring.wgsl".into()
     }
 
     fn alpha_mode(&self) -> AlphaMode2d {
@@ -33,24 +34,26 @@ impl Material2d for CircleMaterial {
     }
 }
 
-pub fn spawn_circle(
+pub fn spawn_graticule_ring(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
-    materials: &mut ResMut<Assets<CircleMaterial>>,
+    materials: &mut ResMut<Assets<GraticuleRingMaterial>>,
     position: Vec3,
     diameter: f32,
-    border_thickness: f32,
+    divisions: f32,
+    thickness: f32,
     smoothness: f32,
-    border_color: LinearRgba,
-    fill_color: LinearRgba,
+    divisions_smoothness: f32,
+    color: LinearRgba,
 ) {
     let mesh = meshes.add(Rectangle::new(diameter, diameter));
 
-    let material = materials.add(CircleMaterial {
-        fill_color,
-        border_color,
-        border_thickness: border_thickness / diameter,
+    let material = materials.add(GraticuleRingMaterial {
+        divisions,
+        thickness: thickness / diameter,
         smoothness,
+        divisions_smoothness,
+        color,
     });
 
     commands.spawn((
