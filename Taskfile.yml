@@ -16,7 +16,7 @@ tasks:
   run:
     cmds:
       - echo "Starting"
-      - target/debug/cc-orbis-antiquus -i data/raw/natural_earth/ne_{{.SCALE}}_land/ne_{{.SCALE}}_land.shp
+      - cargo run -- -i data/raw/natural_earth/ne_{{.SCALE}}_land/ne_{{.SCALE}}_land.shp
 
   build:
     cmds:

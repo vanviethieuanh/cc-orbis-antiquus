@@ -2,6 +2,7 @@ use super::components::CircleGraticuleGrid;
 use super::graticule::setup_circle_graticule_grid;
 use crate::ecs::MapSettings;
 use crate::layers::map::projections;
+use crate::render::primitives::circle::{spawn_circle, CircleMaterial};
 use bevy::prelude::*;
 
 static OVERLAY_Z_INDEX: f32 = 2.0;
@@ -9,7 +10,8 @@ static OVERLAY_Z_INDEX: f32 = 2.0;
 pub fn setup_overlays_system(
     commands: Commands,
     meshes: ResMut<Assets<Mesh>>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    color_materials: ResMut<Assets<ColorMaterial>>,
+    circle_materials: ResMut<Assets<CircleMaterial>>,
     settings: Res<MapSettings>,
 ) {
     let cli = &settings.cli;
@@ -26,7 +28,8 @@ pub fn setup_overlays_system(
     setup_circle_graticule_grid(
         commands,
         meshes,
-        materials,
+        color_materials,
+        circle_materials,
         &grid,
         |lat: f32| projections::parallel_ratio(lat, r_earth, d),
         OVERLAY_Z_INDEX,
