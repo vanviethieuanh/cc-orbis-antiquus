@@ -1,6 +1,7 @@
 mod cli;
 mod ecs;
 mod layers;
+mod palette;
 mod render;
 mod setup;
 
@@ -50,23 +51,3 @@ fn main() {
         )
         .run();
 }
-
-// fn spawn_circle(
-//     mut commands: Commands,
-//     mut meshes: ResMut<Assets<Mesh>>,
-//     mut materials: ResMut<Assets<CircleMaterial>>,
-// ) {
-//     let mesh = meshes.add(Rectangle::new(200.0, 200.0)); // square
-//
-//     let material = materials.add(CircleMaterial {
-//         fill_color: Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
-//         border_color: Color::BLACK.into(),
-//         border_thickness: 0.02,
-//     });
-//
-//     commands.spawn((
-//         Mesh2d(mesh),
-//         MeshMaterial2d(material),
-//         Transform::from_xyz(0.0, 0.0, 0.0),
-//     ));
-// }

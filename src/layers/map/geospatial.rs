@@ -5,10 +5,8 @@ use shapefile::Reader;
 use std::error::Error;
 
 use super::projections;
-use crate::cli::Cli;
 use crate::ecs::MapSettings;
-
-const COASTLINE_COLOR: Color = Color::BLACK;
+use crate::palette::PARCHMENT_INK;
 
 pub fn setup_map(
     mut commands: Commands,
@@ -53,7 +51,7 @@ pub fn setup_map(
                             &mut meshes,
                             &mut materials,
                             &current_strip,
-                            COASTLINE_COLOR,
+                            PARCHMENT_INK,
                             z_index,
                         );
                         current_strip.clear();
@@ -65,7 +63,7 @@ pub fn setup_map(
                     &mut meshes,
                     &mut materials,
                     &current_strip,
-                    COASTLINE_COLOR,
+                    PARCHMENT_INK,
                     z_index,
                 );
             }

@@ -2,7 +2,7 @@ use super::components::CircleGraticuleGrid;
 use super::graticule::setup_circle_graticule_grid;
 use crate::ecs::MapSettings;
 use crate::layers::map::projections;
-use crate::render::primitives::circle::{spawn_circle, CircleMaterial};
+use crate::render::primitives::circle::CircleMaterial;
 use bevy::prelude::*;
 
 static OVERLAY_Z_INDEX: f32 = 2.0;

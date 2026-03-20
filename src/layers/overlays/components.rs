@@ -1,20 +1,16 @@
 use bevy::prelude::*;
 
-#[derive(Component)]
-pub struct GraticuleGrid {
-    pub spacing: f32,
-    pub color: Color,
-    pub density: i32,
-}
+use crate::palette::PARCHMENT_INK;
 
 #[derive(Component)]
 pub struct CircleGraticuleGrid {
     pub radius: f32,
     pub meridians: u32,
-    pub parallels: Vec<f32>,           // latitudes to draw parallels
+    pub parallels: Vec<f32>,
+    pub boundary_color: Color,
     pub meridian_color: Color,
     pub parallel_color: Color,
-    pub line_thickness: f32,
+    pub boundary_thickness: f32,
 }
 
 impl CircleGraticuleGrid {
@@ -23,9 +19,10 @@ impl CircleGraticuleGrid {
             radius,
             meridians: 36,
             parallels: vec![10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0],
-            meridian_color: Color::BLACK,
-            parallel_color: Color::srgb(120.0 / 255.0, 120.0 / 255.0, 120.0 / 255.0),
-            line_thickness: 2.0,
+            meridian_color: PARCHMENT_INK,
+            parallel_color: PARCHMENT_INK,
+            boundary_color: PARCHMENT_INK,
+            boundary_thickness: 2.0,
         }
     }
 
@@ -46,7 +43,7 @@ impl CircleGraticuleGrid {
     }
 
     pub fn with_line_thickness(mut self, thickness: f32) -> Self {
-        self.line_thickness = thickness;
+        self.boundary_thickness = thickness;
         self
     }
 }

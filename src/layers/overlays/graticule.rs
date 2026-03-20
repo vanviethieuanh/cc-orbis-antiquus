@@ -52,7 +52,7 @@ pub fn setup_circle_graticule_grid(
         }
     };
 
-    // Parallels (concentric circles)
+    // Parallels
     {
         let outer_radius: f32 = grid.radius;
         for &latitude in &grid.parallels {
@@ -64,22 +64,22 @@ pub fn setup_circle_graticule_grid(
                 parallel_ratio_fn(latitude) * outer_radius * 2.0,
                 1.0,
                 0.5,
-                Color::srgba(0.0, 0.0, 0.0, 0.5).into(),
+                grid.parallel_color.into(),
                 Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
             );
         }
     };
 
-    // Draw outer boundary circle
+    // Outer boundary circle
     spawn_circle(
         &mut commands,
         &mut meshes,
         &mut circle_materials,
         Vec3::new(0.0, 0.0, z_index),
         2.0 * grid.radius,
-        2.0,
+        grid.boundary_thickness,
         0.5,
-        Color::srgba(0.0, 0.0, 0.0, 1.0).into(),
+        grid.boundary_color.into(),
         Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
     );
 }
