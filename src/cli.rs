@@ -8,7 +8,7 @@ pub struct Cli {
     #[arg(
         short,
         long,
-        default_value = "data/raw/natural_earth/ne_50m_land/ne_50m_land.shp"
+        default_value = "data/raw/natural_earth/ne_110m_land/ne_110m_land.shp"
     )]
     pub input: String,
 

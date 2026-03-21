@@ -3,7 +3,7 @@
 version: "3"
 
 vars:
-  SCALE: 50m
+  SCALE: 110m
 
 tasks:
   default:
@@ -30,7 +30,6 @@ tasks:
       - task: download_natural_earth
 
   download_natural_earth:
-    internal: true
     desc: "Download and extract Natural Earth {{.SCALE}} land shapefile with ETag/resume support"
     dir: data/raw/natural_earth
     sources:
