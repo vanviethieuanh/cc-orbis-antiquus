@@ -5,7 +5,10 @@ use std::ops::Range;
 pub struct CameraSettings {
     pub zoom_range: Range<f32>,
     pub zoom_speed: f32,
+
+    pub move_speed: f32,
 }
+
 pub fn setup_camera(mut commands: Commands) {
     commands.spawn((
         Name::new("Camera"),
@@ -43,6 +46,7 @@ pub fn move_camera(
     time: Res<Time>,
     keyboard: Res<ButtonInput<KeyCode>>,
     camera: Single<&mut Transform, With<Camera>>,
+    camera_settings: Res<CameraSettings>,
 ) {
     let mut transform = camera.into_inner();
     let mut direction = Vec3::ZERO;
@@ -64,6 +68,5 @@ pub fn move_camera(
         direction = direction.normalize();
     }
 
-    let speed = 500.0; // tweak this
-    transform.translation += direction * speed * time.delta_secs();
+    transform.translation += direction * camera_settings.move_speed * time.delta_secs();
 }

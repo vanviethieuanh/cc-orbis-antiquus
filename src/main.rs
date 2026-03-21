@@ -1,5 +1,6 @@
 mod cam;
 mod cli;
+mod constant;
 mod ecs;
 mod layers;
 mod palette;
@@ -41,8 +42,9 @@ fn main() {
             Material2dPlugin::<GraticuleRingMaterial>::default(),
         ))
         .insert_resource(CameraSettings {
-            zoom_range: 0.8..3.5,
+            zoom_range: 0.8..7.,
             zoom_speed: 0.2,
+            move_speed: 1000.,
         })
         .insert_resource(MapSettings { cli })
         .add_systems(

@@ -1,10 +1,20 @@
 use bevy::prelude::*;
 
-pub fn setup_outlines_system(mut commands: Commands) {
-    // Phase 1: Stub - to be implemented with z-index 3 (top)
-    // Will create outline frame, internal dividers, region markers
+use crate::{
+    constant::{CANVAS_BORDER_THICKNESS, CANVAS_SIZE, OUTLINES_Z_INDEX},
+    palette::PARCHMENT_INK,
+};
+
+pub fn setup_outlines_system(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut color_materials: ResMut<Assets<ColorMaterial>>,
+) {
+    let border =
+        meshes.add(Rectangle::new(CANVAS_SIZE.x, CANVAS_SIZE.y).to_ring(CANVAS_BORDER_THICKNESS));
     commands.spawn((
-        Sprite::default(),
-        Transform::default().with_translation(Vec3::new(0.0, 0.0, 3.0)),
+        Mesh2d(border),
+        MeshMaterial2d(color_materials.add(PARCHMENT_INK)),
+        Transform::default().with_translation(Vec3::new(0.0, 0.0, OUTLINES_Z_INDEX)),
     ));
 }

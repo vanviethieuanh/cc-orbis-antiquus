@@ -1,12 +1,11 @@
 use super::components::CircleGraticuleGrid;
 use super::graticule::setup_circle_graticule_grid;
+use crate::constant::OVERLAYS_Z_INDEX;
 use crate::ecs::MapSettings;
 use crate::layers::map::projections;
 use crate::render::indicator::GraticuleRingMaterial;
 use crate::render::primitives::circle::CircleMaterial;
 use bevy::prelude::*;
-
-static OVERLAY_Z_INDEX: f32 = 2.0;
 
 pub fn setup_overlays_system(
     commands: Commands,
@@ -35,10 +34,6 @@ pub fn setup_overlays_system(
         graticule_ring_materials,
         &grid,
         |lat: f32| projections::parallel_ratio(lat, r_earth, d),
-        OVERLAY_Z_INDEX,
+        OVERLAYS_Z_INDEX,
     );
-
-    // Phase 1: Graticule grid is now set up
-    // TODO Phase 2: Add text labels, decorative elements
-    // TODO Phase 3: Add animation support for overlays
 }
