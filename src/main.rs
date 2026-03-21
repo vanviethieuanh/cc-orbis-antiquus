@@ -12,7 +12,6 @@ use clap::Parser;
 use cli::Cli;
 use ecs::MapSettings;
 use layers::map::setup_map_system;
-use layers::outlines::setup_outlines_system;
 use layers::overlays::setup_overlays_system;
 use layers::paper::setup_paper_system;
 
@@ -47,7 +46,6 @@ fn main() {
             Startup,
             (
                 setup_camera,
-                setup_outlines_system,
                 // setup_map_system,
                 setup_overlays_system,
                 setup_paper_system,
