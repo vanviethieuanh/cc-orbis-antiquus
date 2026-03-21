@@ -23,6 +23,17 @@ pub fn setup_overlays_system(
     let d = cli.distance;
     let r_proj = projections::max_projected_radius(POLARS_RADIUS, d);
 
+    // Main border
+    commands.spawn((
+        Mesh2d(
+            meshes
+                .add(Rectangle::new(CANVAS_SIZE.x, CANVAS_SIZE.y).to_ring(CANVAS_BORDER_THICKNESS)),
+        ),
+        MeshMaterial2d(color_materials.add(PARCHMENT_INK)),
+        Transform::default().with_translation(Vec3::new(0.0, 0.0, OUTLINES_Z_INDEX)),
+    ));
+
+    // South Pole
     setup_circle_graticule_grid(
         &mut commands,
         &mut meshes,
@@ -40,6 +51,7 @@ pub fn setup_overlays_system(
         ),
     );
 
+    // South Pole
     setup_circle_graticule_grid(
         &mut commands,
         &mut meshes,
@@ -56,12 +68,4 @@ pub fn setup_overlays_system(
             OVERLAYS_Z_INDEX,
         ),
     );
-
-    let border =
-        meshes.add(Rectangle::new(CANVAS_SIZE.x, CANVAS_SIZE.y).to_ring(CANVAS_BORDER_THICKNESS));
-    commands.spawn((
-        Mesh2d(border),
-        MeshMaterial2d(color_materials.add(PARCHMENT_INK)),
-        Transform::default().with_translation(Vec3::new(0.0, 0.0, OUTLINES_Z_INDEX)),
-    ));
 }
