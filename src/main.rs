@@ -1,9 +1,9 @@
+mod cam;
 mod cli;
 mod ecs;
 mod layers;
 mod palette;
 mod render;
-mod setup;
 
 use bevy::prelude::*;
 use bevy::sprite_render::Material2dPlugin;
@@ -15,8 +15,8 @@ use layers::map::setup_map_system;
 use layers::outlines::setup_outlines_system;
 use layers::overlays::setup_overlays_system;
 use layers::paper::setup_paper_system;
-use setup::setup_camera;
 
+use crate::cam::{move_camera, setup_camera, zoom_camera, CameraSettings};
 use crate::render::indicator::GraticuleRingMaterial;
 use crate::render::primitives::circle::CircleMaterial;
 
@@ -40,6 +40,10 @@ fn main() {
             Material2dPlugin::<CircleMaterial>::default(),
             Material2dPlugin::<GraticuleRingMaterial>::default(),
         ))
+        .insert_resource(CameraSettings {
+            zoom_range: 0.8..3.5,
+            zoom_speed: 0.2,
+        })
         .insert_resource(MapSettings { cli })
         .add_systems(
             Startup,
@@ -51,5 +55,6 @@ fn main() {
                 setup_paper_system,
             ),
         )
+        .add_systems(Update, (zoom_camera, move_camera))
         .run();
 }

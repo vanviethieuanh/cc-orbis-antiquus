@@ -14,6 +14,8 @@ tasks:
       - task: run
 
   run:
+    env:
+      RUST_BACKTRACE: 1
     cmds:
       - echo "Starting"
       - cargo run -- -i data/raw/natural_earth/ne_{{.SCALE}}_land/ne_{{.SCALE}}_land.shp
