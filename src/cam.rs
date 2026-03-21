@@ -24,22 +24,46 @@ pub fn setup_camera(mut commands: Commands) {
 }
 
 pub fn zoom_camera(
-    camera: Single<&mut Projection, With<Camera>>,
+    camera: Single<(&mut Projection, &mut Transform, &Camera, &GlobalTransform)>,
     camera_settings: Res<CameraSettings>,
     mouse_wheel_input: Res<AccumulatedMouseScroll>,
+    window: Single<&Window>,
 ) {
-    match *camera.into_inner() {
-        Projection::Orthographic(ref mut orthographic) => {
-            let delta_zoom = -mouse_wheel_input.delta.y * camera_settings.zoom_speed;
-            let multiplicative_zoom = 1. + delta_zoom;
+    let (mut projection, mut transform, camera_comp, camera_transform) = camera.into_inner();
 
-            orthographic.scale = (orthographic.scale * multiplicative_zoom).clamp(
-                camera_settings.zoom_range.start,
-                camera_settings.zoom_range.end,
-            );
-        }
-        _ => (),
+    let Some(cursor_pos) = window.cursor_position() else {
+        return;
+    };
+
+    let Projection::Orthographic(ref mut ortho) = *projection else {
+        return;
+    };
+
+    let cursor_world = camera_comp
+        .viewport_to_world_2d(camera_transform, cursor_pos)
+        .unwrap();
+
+    let old_scale = ortho.scale;
+
+    let delta_zoom = -mouse_wheel_input.delta.y * camera_settings.zoom_speed;
+    let new_scale = (old_scale * (1. + delta_zoom)).clamp(
+        camera_settings.zoom_range.start,
+        camera_settings.zoom_range.end,
+    );
+
+    if new_scale == old_scale {
+        return;
     }
+
+    ortho.scale = new_scale;
+
+    let cam_pos = transform.translation.truncate();
+    let ratio = new_scale / old_scale;
+
+    let new_cam_pos = cursor_world + (cam_pos - cursor_world) * ratio;
+
+    transform.translation.x = new_cam_pos.x;
+    transform.translation.y = new_cam_pos.y;
 }
 
 pub fn move_camera(
