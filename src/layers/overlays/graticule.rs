@@ -22,10 +22,12 @@ pub fn setup_circle_graticule_grid(
             0.0
         };
 
+        let end_radius = grid.radius + 3. * grid.graticule_ring_thickness;
+
         for i in 0..grid.meridians {
             let angle = (i as f32 / grid.meridians as f32) * std::f32::consts::TAU;
-            let x_outer = grid.radius * angle.sin();
-            let y_outer = -grid.radius * angle.cos();
+            let x_outer = end_radius * angle.sin();
+            let y_outer = -end_radius * angle.cos();
             let x_inner = start_radius * angle.sin();
             let y_inner = -start_radius * angle.cos();
 
@@ -89,13 +91,26 @@ pub fn setup_circle_graticule_grid(
         grid.boundary_color.into(),
     );
 
-    // First boundary circle
+    // Second boundary circle
     spawn_circle(
         &mut commands,
         &mut meshes,
         &mut circle_materials,
         position,
         2.0 * (grid.radius + grid.graticule_ring_thickness),
+        grid.boundary_thickness,
+        0.5,
+        grid.boundary_color.into(),
+        Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
+    );
+
+    // Third boundary circle
+    spawn_circle(
+        &mut commands,
+        &mut meshes,
+        &mut circle_materials,
+        position,
+        2.0 * (grid.radius + 3. * grid.graticule_ring_thickness),
         grid.boundary_thickness,
         0.5,
         grid.boundary_color.into(),

@@ -19,8 +19,6 @@ pub fn setup_overlays_system(
     let d = cli.distance;
     let r_proj = projections::max_projected_radius(POLARS_RADIUS, d);
 
-    // Create circle graticule grid for the main world map projection
-    // Setup graticule - pass closure that captures projection parameters
     setup_circle_graticule_grid(
         commands,
         meshes,

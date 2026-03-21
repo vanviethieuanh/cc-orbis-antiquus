@@ -48,7 +48,7 @@ fn main() {
             (
                 setup_camera,
                 setup_outlines_system,
-                setup_map_system,
+                // setup_map_system,
                 setup_overlays_system,
                 setup_paper_system,
             ),
