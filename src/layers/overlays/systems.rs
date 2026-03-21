@@ -1,7 +1,7 @@
 use super::components::CircleGraticuleGrid;
 use super::graticule::setup_circle_graticule_grid;
 use crate::constant::{
-    CANVAS_BORDER_THICKNESS, CANVAS_LEFT, CANVAS_SIZE, CANVAS_TOP, OUTLINES_Z_INDEX,
+    CANVAS_BORDER_THICKNESS, CANVAS_BOT, CANVAS_LEFT, CANVAS_SIZE, CANVAS_TOP, OUTLINES_Z_INDEX,
     OVERLAYS_Z_INDEX, POLARS_RADIUS,
 };
 use crate::ecs::MapSettings;
@@ -36,6 +36,23 @@ pub fn setup_overlays_system(
         Vec3::new(
             CANVAS_LEFT + POLARS_RADIUS,
             CANVAS_TOP - POLARS_RADIUS,
+            OVERLAYS_Z_INDEX,
+        ),
+    );
+
+    setup_circle_graticule_grid(
+        &mut commands,
+        &mut meshes,
+        &mut color_materials,
+        &mut circle_materials,
+        &mut graticule_ring_materials,
+        &CircleGraticuleGrid::new(r_proj)
+            .with_parallels(vec![40.0, 50.0, 60.0, 70.0, 80.0])
+            .with_meridians(36),
+        |lat: f32| projections::parallel_ratio(lat, POLARS_RADIUS, d),
+        Vec3::new(
+            CANVAS_LEFT + POLARS_RADIUS,
+            CANVAS_BOT + POLARS_RADIUS,
             OVERLAYS_Z_INDEX,
         ),
     );
