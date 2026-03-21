@@ -8,7 +8,6 @@ mod render;
 
 use bevy::prelude::*;
 use bevy::sprite_render::Material2dPlugin;
-use bevy::window::WindowResolution;
 use clap::Parser;
 use cli::Cli;
 use ecs::MapSettings;
@@ -18,21 +17,18 @@ use layers::overlays::setup_overlays_system;
 use layers::paper::setup_paper_system;
 
 use crate::cam::{move_camera, setup_camera, zoom_camera, CameraSettings};
+use crate::palette::PARCHMENT_BG;
 use crate::render::indicator::GraticuleRingMaterial;
 use crate::render::primitives::circle::CircleMaterial;
 
 fn main() {
     let cli = Cli::parse();
-    let (width, height) = cli.compute_window_size();
-
-    let background_color = Color::srgb(230.0 / 255.0, 211.0 / 255.0, 169.0 / 255.0);
 
     App::new()
-        .insert_resource(ClearColor(background_color))
+        .insert_resource(ClearColor(PARCHMENT_BG))
         .add_plugins((
             DefaultPlugins.set(WindowPlugin {
                 primary_window: Some(Window {
-                    resolution: WindowResolution::new(width, height),
                     title: "cc-orbis-antiquus".to_string(),
                     ..default()
                 }),
@@ -42,7 +38,7 @@ fn main() {
             Material2dPlugin::<GraticuleRingMaterial>::default(),
         ))
         .insert_resource(CameraSettings {
-            zoom_range: 0.8..7.,
+            zoom_range: 0.8..10.,
             zoom_speed: 0.2,
             move_speed: 1000.,
         })

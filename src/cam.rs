@@ -16,7 +16,7 @@ pub fn setup_camera(mut commands: Commands) {
         Projection::from(OrthographicProjection {
             near: -1000.0,
             far: 1000.0,
-            scale: 1.,
+            scale: 10.,
             ..OrthographicProjection::default_2d()
         }),
         Msaa::Off,

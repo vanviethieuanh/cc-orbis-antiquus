@@ -5,6 +5,7 @@ use shapefile::Reader;
 use std::error::Error;
 
 use super::projections;
+use crate::constant::POLARS_RADIUS;
 use crate::ecs::MapSettings;
 use crate::palette::PARCHMENT_INK;
 
@@ -13,13 +14,10 @@ pub fn setup_map(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     settings: Res<MapSettings>,
-    z_index: f32,
+    position: Vec3,
 ) -> Result<(), Box<dyn Error>> {
     let cli = &settings.cli;
-    let r_earth = cli.radius;
-    let margin = cli.margin;
     let d = cli.distance;
-    let (window_width, window_height) = cli.compute_window_size();
 
     let mut reader = Reader::from_path(&cli.input)?;
 
@@ -38,11 +36,12 @@ pub fn setup_map(
                         continue;
                     }
 
-                    let proj = projections::perspective_pole(r_earth, lon, lat, d);
+                    let proj = projections::perspective_pole(POLARS_RADIUS, lon, lat, d);
+                    info!("{} {}", proj.x, proj.y);
 
                     if proj.visible {
-                        let x = proj.x + margin - window_width as f32 / 2.0;
-                        let y = window_height as f32 / 2.0 - (proj.y + margin);
+                        let x = proj.x + position.x;
+                        let y = proj.y + position.y;
 
                         current_strip.push(Vec3::new(x, y, 0.0));
                     } else {
@@ -52,7 +51,7 @@ pub fn setup_map(
                             &mut materials,
                             &current_strip,
                             PARCHMENT_INK,
-                            z_index,
+                            position.z,
                         );
                         current_strip.clear();
                     }
@@ -64,7 +63,7 @@ pub fn setup_map(
                     &mut materials,
                     &current_strip,
                     PARCHMENT_INK,
-                    z_index,
+                    position.z,
                 );
             }
         }

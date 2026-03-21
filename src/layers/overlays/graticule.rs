@@ -2,8 +2,6 @@ use crate::render::indicator::{spawn_graticule_ring, GraticuleRingMaterial};
 use crate::render::primitives::circle::{spawn_circle, CircleMaterial};
 
 use super::components::CircleGraticuleGrid;
-use bevy::asset::RenderAssetUsages;
-use bevy::mesh::PrimitiveTopology;
 use bevy::prelude::*;
 
 pub fn setup_circle_graticule_grid(
@@ -14,7 +12,7 @@ pub fn setup_circle_graticule_grid(
     mut graticule_ring_materials: ResMut<Assets<GraticuleRingMaterial>>,
     grid: &CircleGraticuleGrid,
     parallel_ratio_fn: impl Fn(f32) -> f32,
-    z_index: f32,
+    position: Vec3,
 ) {
     // Meridians
     {
@@ -39,7 +37,7 @@ pub fn setup_circle_graticule_grid(
             (&mut commands).spawn((
                 Mesh2d(mesh_handle),
                 MeshMaterial2d(color_materials.add(grid.meridian_color)),
-                Transform::default().with_translation(Vec3::new(0.0, 0.0, z_index)),
+                Transform::default().with_translation(position),
             ));
         }
     };
@@ -52,7 +50,7 @@ pub fn setup_circle_graticule_grid(
                 &mut commands,
                 &mut meshes,
                 &mut circle_materials,
-                Vec3::new(0.0, 0.0, z_index),
+                position,
                 parallel_ratio_fn(latitude) * outer_radius * 2.0,
                 1.0,
                 0.5,
@@ -67,7 +65,7 @@ pub fn setup_circle_graticule_grid(
         &mut commands,
         &mut meshes,
         &mut circle_materials,
-        Vec3::new(0.0, 0.0, z_index),
+        position,
         2.0 * grid.radius,
         grid.boundary_thickness,
         0.5,
@@ -80,7 +78,7 @@ pub fn setup_circle_graticule_grid(
         &mut commands,
         &mut meshes,
         &mut graticule_ring_materials,
-        Vec3::new(0.0, 0.0, z_index),
+        position,
         // 0.9 make the right slightly tigher to inner border, avoid render leak create a
         //   slight white ring.
         2.0 * (grid.radius + grid.graticule_ring_thickness * 0.9),
@@ -96,7 +94,7 @@ pub fn setup_circle_graticule_grid(
         &mut commands,
         &mut meshes,
         &mut circle_materials,
-        Vec3::new(0.0, 0.0, z_index),
+        position,
         2.0 * (grid.radius + grid.graticule_ring_thickness),
         grid.boundary_thickness,
         0.5,
