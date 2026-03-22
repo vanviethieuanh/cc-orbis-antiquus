@@ -4,6 +4,7 @@ mod constant;
 mod ecs;
 mod layers;
 mod palette;
+mod projection;
 mod render;
 
 use bevy::prelude::*;
@@ -46,7 +47,7 @@ fn main() {
             Startup,
             (
                 setup_camera,
-                // setup_map_system,
+                setup_map_system,
                 setup_overlays_system,
                 setup_paper_system,
             ),

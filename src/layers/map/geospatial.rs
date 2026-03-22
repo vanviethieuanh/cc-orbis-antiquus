@@ -4,17 +4,19 @@ use bevy::prelude::*;
 use shapefile::Reader;
 use std::error::Error;
 
-use super::projections;
 use crate::constant::POLARS_RADIUS;
 use crate::ecs::MapSettings;
 use crate::palette::PARCHMENT_INK;
+use crate::projection::perspective_pole;
 
-pub fn setup_map(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    settings: Res<MapSettings>,
+pub fn setup_pole(
+    commands: &mut Commands,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    materials: &mut ResMut<Assets<ColorMaterial>>,
+    settings: &Res<MapSettings>,
     position: Vec3,
+    project_center_deg: Vec2,
+    points_filter_fn: impl Fn(f32, f32) -> bool,
 ) -> Result<(), Box<dyn Error>> {
     let cli = &settings.cli;
     let d = cli.distance;
@@ -32,12 +34,11 @@ pub fn setup_map(
                     let lon = point.x as f32;
                     let lat = point.y as f32;
 
-                    if cli.north_only && lat < 0.0 {
+                    if !points_filter_fn(lon, lat) {
                         continue;
                     }
 
-                    let proj = projections::perspective_pole(POLARS_RADIUS, lon, lat, d);
-                    info!("{} {}", proj.x, proj.y);
+                    let proj = perspective_pole(POLARS_RADIUS, lon, lat, project_center_deg.x, d);
 
                     if proj.visible {
                         let x = proj.x + position.x;
@@ -46,9 +47,9 @@ pub fn setup_map(
                         current_strip.push(Vec3::new(x, y, 0.0));
                     } else {
                         spawn_line_strip(
-                            &mut commands,
-                            &mut meshes,
-                            &mut materials,
+                            commands,
+                            meshes,
+                            materials,
                             &current_strip,
                             PARCHMENT_INK,
                             position.z,
@@ -58,9 +59,9 @@ pub fn setup_map(
                 }
 
                 spawn_line_strip(
-                    &mut commands,
-                    &mut meshes,
-                    &mut materials,
+                    commands,
+                    meshes,
+                    materials,
                     &current_strip,
                     PARCHMENT_INK,
                     position.z,

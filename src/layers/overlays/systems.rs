@@ -5,8 +5,8 @@ use crate::constant::{
     OVERLAYS_Z_INDEX, POLARS_RADIUS,
 };
 use crate::ecs::MapSettings;
-use crate::layers::map::projections;
 use crate::palette::PARCHMENT_INK;
+use crate::projection::{max_projected_radius, parallel_ratio};
 use crate::render::indicator::GraticuleRingMaterial;
 use crate::render::primitives::circle::CircleMaterial;
 use bevy::prelude::*;
@@ -21,7 +21,7 @@ pub fn setup_overlays_system(
 ) {
     let cli = &settings.cli;
     let d = cli.distance;
-    let r_proj = projections::max_projected_radius(POLARS_RADIUS, d);
+    let r_proj = max_projected_radius(POLARS_RADIUS, d);
 
     // Main border
     commands.spawn((
@@ -43,7 +43,7 @@ pub fn setup_overlays_system(
         &CircleGraticuleGrid::new(r_proj)
             .with_parallels(vec![40.0, 50.0, 60.0, 70.0, 80.0])
             .with_meridians(36),
-        |lat: f32| projections::parallel_ratio(lat, POLARS_RADIUS, d),
+        |lat: f32| parallel_ratio(lat, POLARS_RADIUS, d),
         Vec3::new(
             CANVAS_LEFT + POLARS_RADIUS,
             CANVAS_TOP - POLARS_RADIUS,
@@ -61,7 +61,7 @@ pub fn setup_overlays_system(
         &CircleGraticuleGrid::new(r_proj)
             .with_parallels(vec![40.0, 50.0, 60.0, 70.0, 80.0])
             .with_meridians(36),
-        |lat: f32| projections::parallel_ratio(lat, POLARS_RADIUS, d),
+        |lat: f32| parallel_ratio(lat, POLARS_RADIUS, d),
         Vec3::new(
             CANVAS_LEFT + POLARS_RADIUS,
             CANVAS_BOT + POLARS_RADIUS,
