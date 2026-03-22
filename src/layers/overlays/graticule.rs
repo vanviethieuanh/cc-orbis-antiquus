@@ -1,10 +1,11 @@
+use crate::render::graticule::KavrayskiyViiGraticuleMaterial;
 use crate::render::indicator::{spawn_graticule_ring, GraticuleRingMaterial};
 use crate::render::primitives::circle::{spawn_circle, CircleMaterial};
 
 use super::components::CircleGraticuleGrid;
 use bevy::prelude::*;
 
-pub fn setup_circle_graticule_grid(
+pub fn setup_circle_graticule(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
     color_materials: &mut ResMut<Assets<ColorMaterial>>,
@@ -116,4 +117,27 @@ pub fn setup_circle_graticule_grid(
         grid.boundary_color.into(),
         Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
     );
+}
+
+pub fn setup_pseudocylindrical_graticule(
+    commands: &mut Commands,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    color_materials: &mut ResMut<Assets<ColorMaterial>>,
+    kavrayskiy_vii_graticule_materials: &mut ResMut<Assets<KavrayskiyViiGraticuleMaterial>>,
+    position: Vec3,
+    parallels: Vec<f32>,
+    meridians: Vec<f32>,
+    projection_fn: impl Fn(f32, f32) -> (f32, f32),
+) {
+    // Meridians
+    {};
+
+    // Parallels
+    {};
+
+    // Indicators
+    {};
+
+    // Notes
+    {};
 }

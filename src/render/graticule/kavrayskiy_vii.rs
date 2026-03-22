@@ -11,22 +11,22 @@ use bevy::{
 };
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
-pub struct GraticuleRingMaterial {
+pub struct KavrayskiyViiGraticuleMaterial {
     #[uniform(0)]
-    pub divisions: f32,
+    pub meridians: f32,
     #[uniform(1)]
-    pub color: LinearRgba,
+    pub parallels: f32,
     #[uniform(2)]
     pub thickness: f32,
     #[uniform(3)]
     pub smoothness: f32,
     #[uniform(4)]
-    pub divisions_smoothness: f32,
+    pub color: LinearRgba,
 }
 
-impl Material2d for GraticuleRingMaterial {
+impl Material2d for KavrayskiyViiGraticuleMaterial {
     fn fragment_shader() -> bevy::shader::ShaderRef {
-        "shaders/graticule/indicator_ring.wgsl".into()
+        "shaders/graticule/kavrayskiy_vii.wgsl".into()
     }
 
     fn alpha_mode(&self) -> AlphaMode2d {
@@ -34,25 +34,25 @@ impl Material2d for GraticuleRingMaterial {
     }
 }
 
-pub fn spawn_graticule_ring(
+pub fn spawn_kavrayskiy_vii_graticule(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
-    materials: &mut ResMut<Assets<GraticuleRingMaterial>>,
+    materials: &mut ResMut<Assets<KavrayskiyViiGraticuleMaterial>>,
     position: Vec3,
-    diameter: f32,
-    divisions: f32,
+    size: Rectangle,
+    meridians: f32,
+    parallels: f32,
     thickness: f32,
     smoothness: f32,
-    divisions_smoothness: f32,
     color: LinearRgba,
 ) {
-    let mesh = meshes.add(Rectangle::new(diameter, diameter));
+    let mesh = meshes.add(size);
 
-    let material = materials.add(GraticuleRingMaterial {
-        divisions,
-        thickness: thickness / diameter,
+    let material = materials.add(KavrayskiyViiGraticuleMaterial {
+        meridians,
+        parallels,
+        thickness,
         smoothness,
-        divisions_smoothness,
         color,
     });
 

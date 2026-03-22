@@ -1,12 +1,14 @@
 use super::components::CircleGraticuleGrid;
-use super::graticule::setup_circle_graticule_grid;
+use super::graticule::setup_circle_graticule;
 use crate::constant::{
-    CANVAS_BORDER_THICKNESS, CANVAS_BOT, CANVAS_LEFT, CANVAS_SIZE, CANVAS_TOP, OUTLINES_Z_INDEX,
-    OVERLAYS_Z_INDEX, POLARS_RADIUS,
+    CANVAS_BORDER_THICKNESS, CANVAS_BOT, CANVAS_LEFT, CANVAS_MARGIN, CANVAS_SIZE, CANVAS_TOP,
+    OUTLINES_Z_INDEX, OVERLAYS_Z_INDEX, POLARS_RADIUS,
 };
 use crate::ecs::MapSettings;
+use crate::layers::graticule::setup_pseudocylindrical_graticule;
 use crate::palette::PARCHMENT_INK;
-use crate::projection::{max_projected_radius, parallel_ratio};
+use crate::projection::{kavrayskiy_vii, max_projected_radius, parallel_ratio};
+use crate::render::graticule::{spawn_kavrayskiy_vii_graticule, KavrayskiyViiGraticuleMaterial};
 use crate::render::indicator::GraticuleRingMaterial;
 use crate::render::primitives::circle::CircleMaterial;
 use bevy::prelude::*;
@@ -17,6 +19,7 @@ pub fn setup_overlays_system(
     mut color_materials: ResMut<Assets<ColorMaterial>>,
     mut circle_materials: ResMut<Assets<CircleMaterial>>,
     mut graticule_ring_materials: ResMut<Assets<GraticuleRingMaterial>>,
+    mut kavrayskiy_vii_graticule_materials: ResMut<Assets<KavrayskiyViiGraticuleMaterial>>,
     settings: Res<MapSettings>,
 ) {
     let cli = &settings.cli;
@@ -34,7 +37,7 @@ pub fn setup_overlays_system(
     ));
 
     // South Pole
-    setup_circle_graticule_grid(
+    setup_circle_graticule(
         &mut commands,
         &mut meshes,
         &mut color_materials,
@@ -52,7 +55,7 @@ pub fn setup_overlays_system(
     );
 
     // South Pole
-    setup_circle_graticule_grid(
+    setup_circle_graticule(
         &mut commands,
         &mut meshes,
         &mut color_materials,
@@ -67,5 +70,26 @@ pub fn setup_overlays_system(
             CANVAS_BOT + POLARS_RADIUS,
             OVERLAYS_Z_INDEX,
         ),
+    );
+
+    // Main map
+    spawn_kavrayskiy_vii_graticule(
+        &mut commands,
+        &mut meshes,
+        &mut kavrayskiy_vii_graticule_materials,
+        Vec3::new(0., 0., 0.),
+        Rectangle::new(
+            CANVAS_SIZE.x
+                - CANVAS_MARGIN.1
+                - CANVAS_MARGIN.3
+                - CANVAS_BORDER_THICKNESS * 2.
+                - POLARS_RADIUS * 2.,
+            CANVAS_SIZE.y - CANVAS_MARGIN.0 - CANVAS_MARGIN.2 - CANVAS_BORDER_THICKNESS * 2.,
+        ),
+        36.,
+        18.,
+        0.01,
+        0.1,
+        PARCHMENT_INK.into(),
     );
 }

@@ -18,6 +18,7 @@ use layers::paper::setup_paper_system;
 
 use crate::cam::{move_camera, setup_camera, zoom_camera, CameraSettings};
 use crate::palette::PARCHMENT_BG;
+use crate::render::graticule::KavrayskiyViiGraticuleMaterial;
 use crate::render::indicator::GraticuleRingMaterial;
 use crate::render::primitives::circle::CircleMaterial;
 
@@ -36,6 +37,7 @@ fn main() {
             }),
             Material2dPlugin::<CircleMaterial>::default(),
             Material2dPlugin::<GraticuleRingMaterial>::default(),
+            Material2dPlugin::<KavrayskiyViiGraticuleMaterial>::default(),
         ))
         .insert_resource(CameraSettings {
             zoom_range: 0.8..10.,
@@ -47,7 +49,7 @@ fn main() {
             Startup,
             (
                 setup_camera,
-                setup_map_system,
+                //setup_map_system,
                 setup_overlays_system,
                 setup_paper_system,
             ),

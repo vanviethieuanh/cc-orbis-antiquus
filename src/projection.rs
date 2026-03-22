@@ -1,4 +1,6 @@
-use bevy::math::Vec2;
+use std::f32::consts::PI;
+
+use std::ops::RangeInclusive;
 
 pub struct ProjectionResult {
     pub x: f32,
@@ -49,29 +51,33 @@ pub fn parallel_ratio(lat_deg: f32, r: f32, d: f32) -> f32 {
     rho_phi / rho_max
 }
 
-pub fn eckert_iv_project(lat: f32, lon: f32) -> Vec2 {
-    let phi = lat;
-    let lambda = lon;
+/// Projects geographic coordinates (longitude and latitude) to the Kavrayskiy VII projection.
+///
+/// # Parameters
+/// - `lon_deg`: Longitude in **degrees** (typical range: -180 to 180)
+/// - `lat_deg`: Latitude in **degrees** (typical range: -90 to 90)
+///
+/// # Returns
+/// - `(x, y)`: Projected coordinates in radians-equivalent units
+///
+/// # Projection Ranges
+/// - `x ∈ [-π√3/2, π√3/2] ≈ [-2.7207, 2.7207]`
+/// - `y ∈ [-π/2, π/2] ≈ [-1.5708, 1.5708]`
+///
+/// # Example
+/// ```
+/// let (x, y) = kavrayskiy_vii(0.0, 0.0);
+/// println!("Projected: x = {}, y = {}", x, y);
+/// ```
+pub fn kavrayskiy_vii(lon_deg: f32, lat_deg: f32) -> (f32, f32) {
+    let lon = lon_deg.to_radians();
+    let lat = lat_deg.to_radians();
 
-    let c = 2.0 + std::f32::consts::PI / 2.0;
+    let x = 1.5 * lon * ((1.0 / 3.0) - (lat / PI).powi(2)).sqrt();
+    let y = lat;
 
-    let mut theta = phi;
-
-    for _ in 0..6 {
-        let sin_t = theta.sin();
-        let cos_t = theta.cos();
-
-        let f = theta + sin_t * cos_t + 2.0 * sin_t - c * phi.sin();
-        let df = 1.0 + cos_t * cos_t - sin_t * sin_t + 2.0 * cos_t;
-
-        theta -= f / df;
-    }
-
-    let kx = 2.0 / (4.0 * std::f32::consts::PI + std::f32::consts::PI.powi(2)).sqrt();
-    let ky = 2.0 * std::f32::consts::PI.sqrt() / (4.0 + std::f32::consts::PI).sqrt();
-
-    let x = kx * lambda * (1.0 + theta.cos());
-    let y = ky * theta.sin();
-
-    Vec2::new(x, y)
+    (x, y)
 }
+
+const KAVRAYSKIY_VII_X_RANGE: RangeInclusive<f32> = -2.7207..=2.7207;
+const KAVRAYSKIY_VII_Y_RANGE: RangeInclusive<f32> = -1.5708..=1.5708;
