@@ -9,8 +9,7 @@ pub static CANVAS_TOP: f32 = (CANVAS_SIZE.y) / 2. - CANVAS_BORDER_THICKNESS - CA
 pub static CANVAS_BOT: f32 = -(CANVAS_SIZE.y) / 2. + CANVAS_BORDER_THICKNESS + CANVAS_MARGIN.2;
 
 pub static PAPER_Z_INDEX: f32 = 1.0;
-pub static OUTLINES_Z_INDEX: f32 = 2.0;
-pub static MAP_Z_INDEX: f32 = 3.0;
-pub static OVERLAYS_Z_INDEX: f32 = 4.0;
+pub static MAP_Z_INDEX: f32 = 2.0;
+pub static OVERLAYS_Z_INDEX: f32 = 3.0;
 
 pub static POLARS_RADIUS: f32 = 560.0;

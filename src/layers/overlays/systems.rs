@@ -2,7 +2,7 @@ use super::components::CircleGraticuleGrid;
 use super::graticule::setup_circle_graticule;
 use crate::constant::{
     CANVAS_BORDER_THICKNESS, CANVAS_BOT, CANVAS_LEFT, CANVAS_MARGIN, CANVAS_SIZE, CANVAS_TOP,
-    OUTLINES_Z_INDEX, OVERLAYS_Z_INDEX, POLARS_RADIUS,
+    OVERLAYS_Z_INDEX, POLARS_RADIUS,
 };
 use crate::ecs::MapSettings;
 use crate::layers::graticule::setup_pseudocylindrical_graticule;
@@ -33,7 +33,7 @@ pub fn setup_overlays_system(
                 .add(Rectangle::new(CANVAS_SIZE.x, CANVAS_SIZE.y).to_ring(CANVAS_BORDER_THICKNESS)),
         ),
         MeshMaterial2d(color_materials.add(PARCHMENT_INK)),
-        Transform::default().with_translation(Vec3::new(0.0, 0.0, OUTLINES_Z_INDEX)),
+        Transform::default().with_translation(Vec3::new(0.0, 0.0, OVERLAYS_Z_INDEX)),
     ));
 
     // South Pole
