@@ -12,8 +12,7 @@ The map is structured in **4 layers** with different rendering and implementatio
 |:---:|:---|:---:|:---|:---|
 | 1 | **Paper** | Last | Todo | Background texture (aged parchment) |
 | 2 | **Map** | 2nd | Todo | Water, land, lakes, rivers, mountains |
-| 3 | **Overlays** | 3rd | Todo | Graticule, scales, notes, titles, diagrams |
-| 4 | **Outlines** | 1st | In Progress | Layout lines, curves, borders, component separation |
+| 3 | **Overlays** | 1st | In Progress | Graticule, scales, notes, titles, diagrams |
 
 ---
 
@@ -41,9 +40,9 @@ The map is structured in **4 layers** with different rendering and implementatio
 **Purpose**: Core geographical data for all mapped regions (world map + poles for Kunyu Wanguo Quantu).
 
 **Composition**: Multiple map projections
-- Main world map: Winkel Tripel projection
-- North Pole: Azimuthal projection
-- South Pole: Azimuthal projection
+- Main world map: Kavrayskiy VII projection
+- North Pole: Azimuthal projection (perspective sphere)
+- South Pole: Azimuthal projection (perspective sphere)
 
 **Rendering Order Within Layer**:
 1. Water (background fill)
@@ -61,8 +60,8 @@ The map is structured in **4 layers** with different rendering and implementatio
 
 **Key Implementation Steps**:
 - [ ] Load Natural Earth coastline/land data
-- [ ] Implement Winkel Tripel projection
-- [ ] Implement Azimuthal projection (poles)
+- [x] Implement Kavrayskiy VII projection (main map)
+- [x] Implement Azimuthal projection (poles - perspective sphere)
 - [ ] Render water layer (Bevy ColorMaterial)
 - [ ] Render land layer with outlines
 - [ ] Add lake/river geometry
@@ -106,64 +105,30 @@ The map is structured in **4 layers** with different rendering and implementatio
 
 ---
 
-### Layer 4: Outlines
 
-**Purpose**: Layout framework and visual separation of components; defines regions before content is filled.
-
-**Nature**: Static and declarative geometry defining component boundaries.
-
-**Components**:
-- Oval/circular boundary frame (outer map border)
-- Internal dividing lines (separating world map from poles)
-- Regional compartments (e.g., diagram section boxes)
-- Title block border
-- Margin guidelines
-
-| Phase | Details | Notes |
-|:---|:---|:---|
-| **Solid Color Block** | Simple line geometry (white/cream lines on darker background) | Verify layout geometry and alignment |
-| **Styling** | Line thickness, decorative borders, corner ornaments | Ornamental corner pieces, flourishes |
-| **FX & Shaders** | Embossed/inlaid effect, shadow depth | 3D depth illusion |
-| **Dynamic** | N/A | Static layout framework |
-
-**Key Implementation Steps**:
-- [ ] Define composition layout (component positions/sizes)
-- [ ] Draw outer frame boundary (oval or circle)
-- [ ] Draw internal dividers (world map vs. poles)
-- [ ] Draw title block and note regions
-- [ ] Implement corner ornaments
-- [ ] Verify visual hierarchy
-
----
 
 ## Implementation Phases
 
 ### Phase 1: Static Foundation (Current)
 
-**Goal**: Establish all four layers with solid color blocks and basic styling; verify rendering pipeline and visual hierarchy.
+**Goal**: Establish all three layers with core functionality and basic rendering; verify rendering pipeline and visual hierarchy.
 
 **Order of Implementation**:
-1. **Outlines Layer** (Solid + ornaments)
-   - Define layout regions (world map, poles, diagram areas)
-   - Outer frame boundary (oval or circle)
-   - Internal dividers (world map vs. poles)
-   - Component placement guides
-   - Title block and note regions
+1. **Overlays Layer** (Graticule rendering)
+   - Kavrayskiy VII graticule for main world map (Meridians + Parallels)
+   - Azimuthal polar graticules (North & South poles with perspective sphere)
+   - Border frame around canvas
+   - ✓ Rendered via custom shader materials (KavrayskiyViiGraticuleMaterial)
 
-2. **Map Layer** (Solid + basic styling)
-   - Coastline projection (Winkel Tripel + Azimuthal) positioned within outline regions
+2. **Map Layer** (Deferred)
+   - Coastline projection (Kavrayskiy VII + Azimuthal) with natural earth data
    - Water/land geometry rendering
    - Color differentiation
 
-3. **Overlays Layer** (Solid + basic styling)
-   - Graticule lines (positioned per map region)
-   - Text labels (basic font rendering)
-   - Scale borders
+3. **Paper Layer** (Placeholder)
+   - Parchment background color
 
-4. **Paper Layer** (Placeholder only)
-   - Dummy color background
-
-**Output**: Interactive Bevy window showing all layers with visual separation, ready for Phase 2 styling.
+**Output**: Interactive Bevy window with graticule overlays for Kavrayskiy VII and polar projections, pan/zoom controls, ready for Phase 2 map geometry.
 
 ---
 
@@ -243,7 +208,7 @@ src/
 ├── ecs/
 │   ├── resources.rs                     [Global resources]
 │   │   - MapSettings { window_width, height, cli }
-│   │   - ProjectionCache { winkel_tripel, azimuthal }
+│   │   - ProjectionCache { kavrayskiy_vii, azimuthal }
 │   │   - GeospatialData { coastlines, land, rivers, lakes, elevation }
 │   │   - LayoutConfig { outline_regions, map_bounds, text_positions }
 │   │
@@ -255,34 +220,20 @@ src/
 │   │   - IsDynamic (marker - Phase 4)
 │
 ├── layers/
-│   ├── outlines/
-│   │   ├── components.rs                [Layer 4 components]
-│   │   │   - OutlineFrame { shape, color }
-│   │   │   - RegionMarker { region_type }
-│   │   │   - InternalDivider
-│   │   │
-│   │   ├── systems.rs                   [Layer 4 systems]
-│   │   │   - setup_outlines_system (Startup - 1st implementation)
-│   │   │
-│   │   └── layout.rs                    [Layout definitions]
-│   │       - define_composition_bounds()
-│   │       - calculate_region_positions()
-│   │       - RegionType enum & layout constants
-│   │
 │   ├── map/
-│   │   ├── components.rs                [Layer 2 components]
+│   │   ├── components.rs                [Layer 1 components]
 │   │   │   - MapRegion { projection, bounds }
 │   │   │   - ProjectionData { projection_type, cached_coords }
 │   │   │   - WaterGeometry, LandGeometry, etc.
 │   │   │
-│   │   ├── systems.rs                   [Layer 2 systems]
-│   │   │   - setup_map_system (Startup - 2nd implementation)
+│   │   ├── systems.rs                   [Layer 1 systems]
+│   │   │   - setup_map_system (Deferred - Phase 2)
 │   │   │   - (Future) update_map_styling_system
 │   │   │   - (Future) apply_elevation_shaders_system
 │   │   │
 │   │   ├── projections.rs               [Projection math - KEEP EXISTING]
-│   │   │   - winkel_tripel_project(lat, lon) -> Vec2
-│   │   │   - azimuthal_project(lat, lon) -> Vec2
+   │   │   - kavrayskiy_vii(lon_deg, lat_deg) -> (f32, f32)
+   │   │   - perspective_pole(r, lon, lat, lon0, d) -> ProjectionResult
 │   │   │   - Projection trait & implementations
 │   │   │
 │   │   └── geospatial.rs                [Data loading]
@@ -292,15 +243,15 @@ src/
 │   │       - GeospatialLoader utility
 │   │
 │   ├── overlays/
-│   │   ├── components.rs                [Layer 3 components]
+│   │   ├── components.rs                [Layer 2 components]
 │   │   │   - GraticuleGrid { spacing, color, density }
 │   │   │   - TextContent { text, language }
 │   │   │   - TextStyle { font_size, orientation, color }
 │   │   │   - Diagram { diagram_type }
 │   │   │   - DecorativeElement { element_type }
 │   │   │
-│   │   ├── systems.rs                   [Layer 3 systems]
-│   │   │   - setup_overlays_system (Startup - 3rd implementation)
+│   │   ├── systems.rs                   [Layer 2 systems]
+│   │   │   - setup_overlays_system (Startup - 1st implementation)
 │   │   │   - (Future) setup_graticule_system
 │   │   │   - (Future) apply_typography_styling
 │   │   │   - (Future) animate_overlays_system (Phase 4)
@@ -314,12 +265,12 @@ src/
 │   │       - CelestialSphere definition
 │   │
 │   └── paper/
-│       ├── components.rs                [Layer 1 components]
+│       ├── components.rs                [Layer 3 components]
 │       │   - PaperBackground { color }
 │       │   - PaperTexture (Phase 3+)
 │       │
-│       └── systems.rs                   [Layer 1 systems]
-│           - setup_paper_system (Startup - last implementation)
+│       └── systems.rs                   [Layer 3 systems]
+│           - setup_paper_system (Startup - 2nd implementation)
 │           - (Future) apply_paper_texture_system
 │           - (Future) apply_aging_effects_system
 │
@@ -342,10 +293,9 @@ src/
 
 #### By Implementation Order:
 1. `setup.rs` → Camera
-2. `outlines/systems.rs` → Layout skeleton
-3. `map/systems.rs` → Projected geometry
-4. `overlays/systems.rs` → Overlays
-5. `paper/systems.rs` → Background
+2. `overlays/systems.rs` → Graticule rendering
+3. `map/systems.rs` → Projected geometry (deferred)
+4. `paper/systems.rs` → Background
 
 #### By Phase (Future):
 - **Phase 1**: Startup systems only (all files above)
@@ -359,10 +309,9 @@ src/
 
 | Component | File | Layer |
 |:---|:---|:---|
-| `OutlineFrame`, `RegionMarker` | `outlines/components.rs` | Layer 4 |
-| `MapRegion`, `ProjectionData` | `map/components.rs` | Layer 2 |
-| `GraticuleGrid`, `TextContent`, `Diagram` | `overlays/components.rs` | Layer 3 |
-| `PaperBackground` | `paper/components.rs` | Layer 1 |
+| `MapRegion`, `ProjectionData` | `map/components.rs` | Layer 1 |
+| `GraticuleGrid`, `TextContent`, `Diagram` | `overlays/components.rs` | Layer 2 |
+| `PaperBackground` | `paper/components.rs` | Layer 3 |
 | `LayerType`, markers | `ecs/components.rs` | Shared |
 
 ## System → File Mapping
@@ -370,10 +319,9 @@ src/
 | System | File | Order | Phase |
 |:---|:---|:---:|:---|
 | `setup_camera_system` | `setup.rs` | 1 | 1 |
-| `setup_outlines_system` | `outlines/systems.rs` | 2 | 1 |
-| `setup_map_system` | `map/systems.rs` | 3 | 1 |
-| `setup_overlays_system` | `overlays/systems.rs` | 4 | 1 |
-| `setup_paper_system` | `paper/systems.rs` | 5 | 1 |
+| `setup_overlays_system` | `overlays/systems.rs` | 2 | 1 |
+| `setup_map_system` | `map/systems.rs` | — | 2 (Deferred) |
+| `setup_paper_system` | `paper/systems.rs` | 3 | 1 |
 | `apply_styling_*` | `layers/*/systems.rs` | — | 2 |
 | `apply_shaders_*` | `layers/*/systems.rs` | — | 3 |
 | `animate_*` | `layers/*/systems.rs` | — | 4 |

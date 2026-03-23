@@ -78,8 +78,8 @@ FX / Post-processing
 
 #### 2. Projection
 
-- Use **Winkel Tripel projection**
-- Optionally experiment with oval projections (Eckert IV-like)
+- Use **Kavrayskiy VII projection** for main world map
+- Use **Azimuthal projection** for polar regions (north/south poles)
 
 ---
 
@@ -223,16 +223,16 @@ Used for:
 
 **Goal**: Migrate from CPU-based `image` + `imageproc` to Bevy's GPU-accelerated 2D renderer.
 
-**Tasks**:
-- Set up Bevy project structure with core ECS setup
-- Migrate coastline projection logic (keep `projections.rs` unchanged)
-- Implement `setup()` startup system to render static map via `Mesh2d` + `ColorMaterial`
-- Migrate Chinese text overlay rendering using Bevy's `Text2d` component
-- Replace PNG output with interactive window rendering
-- Verify visual parity with reference Kunyu Wanguo Quantu map
-- Update CLI to control viewport/resolution instead of file output
+**Tasks** (Completed):
+- ✓ Set up Bevy project structure with core ECS setup
+- ✓ Implement Kavrayskiy VII projection for main world map
+- ✓ Implement Azimuthal projection for polar regions
+- ✓ Implement `setup_overlays_system()` startup system with graticule rendering via custom shader materials
+- ✓ Render graticule layers (main map + poles) with GPU acceleration
+- ✓ Interactive pan/zoom controls via camera system
+- ✓ Remove CPU-based image rendering
 
-**Output**: Static map rendering in Bevy window with improved anti-aliasing and font quality.
+**Output**: Interactive map window with Kavrayskiy VII graticule and polar projections.
 
 ---
 
