@@ -1,5 +1,5 @@
+use crate::render::graticule::indicator::{spawn_graticule_ring, GraticuleRingMaterial};
 use crate::render::graticule::KavrayskiyViiGraticuleMaterial;
-use crate::render::indicator::{spawn_graticule_ring, GraticuleRingMaterial};
 use crate::render::primitives::circle::{spawn_circle, CircleMaterial};
 
 use super::components::CircleGraticuleGrid;

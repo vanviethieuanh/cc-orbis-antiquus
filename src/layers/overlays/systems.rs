@@ -8,8 +8,8 @@ use crate::ecs::MapSettings;
 use crate::layers::graticule::setup_pseudocylindrical_graticule;
 use crate::palette::PARCHMENT_INK;
 use crate::projection::{kavrayskiy_vii, max_projected_radius, parallel_ratio};
+use crate::render::graticule::indicator::GraticuleRingMaterial;
 use crate::render::graticule::{spawn_kavrayskiy_vii_graticule, KavrayskiyViiGraticuleMaterial};
-use crate::render::indicator::GraticuleRingMaterial;
 use crate::render::primitives::circle::CircleMaterial;
 use bevy::prelude::*;
 
