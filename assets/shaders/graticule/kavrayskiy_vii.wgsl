@@ -36,13 +36,12 @@ fn fragment(mesh: VertexOutput) -> @location(0) vec4<f32> {
 
     // geo → normalized [0, 1]
     let lon_norm = (lon + PI) / (2.0 * PI);
-    let lat_norm = (lat + PI / 2.0) / PI;
+    let lat_norm = (lat + PI / 2.0) / PI / 2.0;
 
     // grid distances
     let meridian_phase = lon_norm * (meridians + meridians * thickness * smoothness)
         + 0.5
         - meridians * thickness * 0.5 * smoothness;
-
     let parallel_phase = lat_norm * parallels;
 
     let d_lon = abs(fract(meridian_phase) - 0.5);
@@ -51,11 +50,13 @@ fn fragment(mesh: VertexOutput) -> @location(0) vec4<f32> {
     // distortion correction
     let d_lon_corrected = d_lon * sqrt_term;
 
-    // grid combine
-    let grid_dist = min(d_lon_corrected, d_lat);
+    let aa_lon = fwidth(d_lon_corrected) * smoothness;
+    let aa_lat = fwidth(d_lat) * smoothness;
 
-    let aa = fwidth(grid_dist) * smoothness;
-    let grid_mask = 1.0 - smoothstep(thickness, thickness + aa, grid_dist);
+    let mask_lon = 1.0 - smoothstep(thickness, thickness + aa_lon, d_lon_corrected);
+    let mask_lat = 1.0 - smoothstep(thickness, thickness + aa_lat, d_lat);
+
+    let grid_mask = max(mask_lon, mask_lat);
 
     // projection boundary
     let edge_dist = abs(proj_x) - max_x;

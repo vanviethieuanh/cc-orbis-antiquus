@@ -84,7 +84,7 @@ pub fn setup_overlays_system(
                 - CANVAS_MARGIN.3
                 - CANVAS_BORDER_THICKNESS * 2.
                 - POLARS_RADIUS * 2.,
-            CANVAS_SIZE.y - CANVAS_MARGIN.0 - CANVAS_MARGIN.2 - CANVAS_BORDER_THICKNESS * 2.,
+            CANVAS_SIZE.y - CANVAS_BORDER_THICKNESS * 2.,
         ),
         36.,
         18.,
