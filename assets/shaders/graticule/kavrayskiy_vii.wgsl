@@ -7,7 +7,7 @@
 @group(#{MATERIAL_BIND_GROUP}) @binding(4) var<uniform> color: vec4<f32>;
 
 const PI: f32 = 3.141592653589793;
-const X_MAX: f32 = 2.7206990463513265; // π√3 / 2
+const X_MAX: f32 = 2.7206990463513265;
 
 fn periodic_dist(x: f32) -> f32 {
     let f = fract(x);
@@ -18,67 +18,55 @@ fn periodic_dist(x: f32) -> f32 {
 fn fragment(mesh: VertexOutput) -> @location(0) vec4<f32> {
     let uv = mesh.uv;
 
-    // ----------------------------------------
-    // 1. UV → projected space
-    // ----------------------------------------
-    let x = (uv.x - 0.5) * 2.0 * X_MAX; // [-X_MAX, X_MAX]
-    let y = (uv.y - 0.5) * PI;          // [-π/2, π/2]
+    // uv → projection space [-X_MAX, X_MAX], [-pi/2, pi/2]
+    let proj_x = (uv.x - 0.5) * 2.0 * X_MAX;
+    let proj_y = (uv.y - 0.5) * PI;
 
-    let lat = y;
+    // projection → geo
+    let lat = proj_y;
 
-    // ----------------------------------------
-    // 2. projection validity + shape
-    // ----------------------------------------
-    let sqrt_term = sqrt(1.0 / 3.0 - (lat / PI) * (lat / PI));
+    let lat_ratio = lat / PI;
+    let sqrt_term = sqrt(1.0 / 3.0 - lat_ratio * lat_ratio);
     if sqrt_term <= 0.0 {
         discard;
     }
 
     let max_x = (3.0 * PI / 2.0) * sqrt_term;
+    let lon = (2.0 * proj_x) / (3.0 * sqrt_term);
 
-    // mask out corners (projection boundary)
-    let edge = abs(x) - max_x;
-    let shape_mask = 1.0 - smoothstep(0.0, 0.002, edge);
+    // geo → normalized [0, 1]
+    let lon_norm = (lon + PI) / (2.0 * PI);
+    let lat_norm = (lat + PI / 2.0) / PI;
 
+    // grid distances
+    let meridian_phase = lon_norm * (meridians + meridians * thickness * smoothness)
+        + 0.5
+        - meridians * thickness * 0.5 * smoothness;
+
+    let parallel_phase = lat_norm * parallels;
+
+    let d_lon = abs(fract(meridian_phase) - 0.5);
+    let d_lat = abs(fract(parallel_phase) - 0.5);
+
+    // distortion correction
+    let d_lon_corrected = d_lon * sqrt_term;
+
+    // grid combine
+    let grid_dist = min(d_lon_corrected, d_lat);
+
+    let aa = fwidth(grid_dist) * smoothness;
+    let grid_mask = 1.0 - smoothstep(thickness, thickness + aa, grid_dist);
+
+    // projection boundary
+    let edge_dist = abs(proj_x) - max_x;
+    let edge_aa = fwidth(edge_dist) * smoothness;
+    let shape_mask = 1.0 - smoothstep(0.0, edge_aa, edge_dist);
     if shape_mask <= 0.0 {
         discard;
     }
 
-    // ----------------------------------------
-    // 3. inverse projection → lon/lat
-    // ----------------------------------------
-    let lon = (2.0 * x) / (3.0 * sqrt_term);
+    // final
+    let alpha = grid_mask * shape_mask;
 
-    // normalize to [0,1]
-    let lon_norm = (lon + PI) / (2.0 * PI);
-    let lat_norm = (lat + PI / 2.0) / PI;
-
-    // ----------------------------------------
-    // 4. graticule distances (in spherical space)
-    // ----------------------------------------
-    let d_lon = abs(fract(lon_norm * meridians + 0.5) - 0.5);
-    let d_lat = abs(fract(lat_norm * parallels) - 0.5);
-
-    // ----------------------------------------
-    // 5. fix meridian width distortion
-    // ----------------------------------------
-    // horizontal scale shrinks toward poles → compensate
-    let d_lon_corr = d_lon * sqrt_term;
-
-    // combine (draw both meridians + parallels)
-    let d = min(d_lon_corr, d_lat);
-
-    // ----------------------------------------
-    // 6. anti-aliasing + thickness control
-    // ----------------------------------------
-    let aa = fwidth(d) * smoothness;
-
-    let grid = 1.0 - smoothstep(thickness, thickness + aa, d);
-
-    // ----------------------------------------
-    // 7. final color
-    // ----------------------------------------
-    let alpha = grid * shape_mask;
-
-    return vec4<f32>(color.rgb * grid, alpha * color.a);
+    return vec4<f32>(color.rgb * grid_mask, alpha * color.a);
 }
