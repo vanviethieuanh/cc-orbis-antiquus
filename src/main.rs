@@ -18,8 +18,8 @@ use layers::paper::setup_paper_system;
 
 use crate::cam::{move_camera, setup_camera, zoom_camera, CameraSettings};
 use crate::palette::PARCHMENT_BG;
+use crate::render::graticule::indicator::GraticuleRingMaterial;
 use crate::render::graticule::KavrayskiyViiGraticuleMaterial;
-use crate::render::indicator::GraticuleRingMaterial;
 use crate::render::primitives::circle::CircleMaterial;
 
 fn main() {
