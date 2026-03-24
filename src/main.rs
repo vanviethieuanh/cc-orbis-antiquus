@@ -11,7 +11,6 @@ use bevy::prelude::*;
 use bevy::sprite_render::Material2dPlugin;
 use clap::Parser;
 use cli::Cli;
-use ecs::MapSettings;
 use layers::map::setup_map_system;
 use layers::overlays::setup_overlays_system;
 use layers::paper::setup_paper_system;
@@ -45,7 +44,6 @@ fn main() {
             zoom_speed: 0.2,
             move_speed: 1000.,
         })
-        .insert_resource(MapSettings { cli })
         .add_systems(
             Startup,
             (

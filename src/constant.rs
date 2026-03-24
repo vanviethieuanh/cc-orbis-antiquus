@@ -13,6 +13,8 @@ pub static MAP_Z_INDEX: f32 = 2.0;
 pub static OVERLAYS_Z_INDEX: f32 = 3.0;
 
 pub static POLARS_RADIUS: f32 = 560.0;
+// Actual Distance = POLARS_RADIUS * this value;
+pub static POLE_VIEWPOINT_DISTANCE: f32 = 5.62;
 
 pub static MAIN_MAP_MEDIAN_SEGMENTS: usize = 128;
 

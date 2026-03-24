@@ -2,10 +2,48 @@ use std::f32::consts::PI;
 
 use std::ops::RangeInclusive;
 
+use bevy::math::Vec2;
+
 pub struct ProjectionResult {
     pub x: f32,
     pub y: f32,
     pub visible: bool,
+}
+
+pub fn perspective_polar_projection_clamped(
+    r: f32,
+    lon: f32,
+    lat: f32,
+    lon0: f32,
+    d: f32,
+    view_pole_sign: f32, // +1 north, -1 south
+) -> (f32, f32) {
+    let d_abs = r * d;
+
+    let phi = lat.to_radians();
+    let lambda = lon.to_radians();
+    let lambda0 = lon0.to_radians();
+
+    let sin_limit = r / d_abs;
+
+    let theta = lambda - lambda0;
+    if phi.sin() * view_pole_sign < sin_limit {
+        let cos_limit = (1.0 - sin_limit * sin_limit).sqrt();
+        let k_limit = (d_abs - r) / (d_abs - r * sin_limit);
+        let rho_max = r * k_limit * cos_limit;
+        let dir = Vec2::new(theta.sin(), -theta.cos());
+        let p = dir * rho_max + Vec2::splat(r);
+
+        return (p.x, p.y);
+    }
+
+    let k = (d_abs - r) / (d_abs - r * (phi).sin());
+    let rho = r * k * phi.cos();
+
+    let x = rho * theta.sin() + r;
+    let y = -rho * theta.cos() + r;
+
+    (x, y)
 }
 
 pub fn perspective_pole(r: f32, lon: f32, lat: f32, lon0: f32, d: f32) -> ProjectionResult {

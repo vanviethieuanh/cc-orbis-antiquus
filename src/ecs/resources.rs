@@ -3,12 +3,6 @@ use std::error::Error;
 use crate::cli::Cli;
 use crate::constant::MAP_SHAPE_FILEPATH;
 use bevy::prelude::*;
-
-#[derive(Resource)]
-pub struct MapSettings {
-    pub cli: Cli,
-}
-
 use shapefile::{Reader, Shape};
 
 #[derive(Resource)]
