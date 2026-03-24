@@ -28,9 +28,9 @@ pub fn setup_map_system(
         &mut meshes,
         &mut materials,
         &map,
-        |_long, lat| lat.abs() != 90.0,
+        |coor| coor.y.abs() != 90.0,
         Vec3::new(CANVAS_LEFT, CANVAS_TOP - POLARS_RADIUS * 2., MAP_Z_INDEX),
-        |c| perspective_polar_projection_clamped(1.0, c, 0.0, POLE_VIEWPOINT_DISTANCE, 1.0),
+        |c| perspective_polar_projection_clamped(c, POLE_VIEWPOINT_DISTANCE),
         POLARS_RADIUS,
         PARCHMENT_INK,
     );
@@ -41,9 +41,9 @@ pub fn setup_map_system(
         &mut meshes,
         &mut materials,
         &map,
-        |_long, lat| lat.abs() != 90.0,
+        |coor| coor.y.abs() != 90.0,
         Vec3::new(CANVAS_LEFT, CANVAS_BOT, MAP_Z_INDEX),
-        |c| perspective_polar_projection_clamped(1.0, c, 0.0, POLE_VIEWPOINT_DISTANCE, -1.0),
+        |c| perspective_polar_projection_clamped(c, -POLE_VIEWPOINT_DISTANCE),
         POLARS_RADIUS,
         PARCHMENT_INK,
     );
@@ -54,7 +54,7 @@ pub fn setup_map_system(
         &mut meshes,
         &mut materials,
         &map,
-        |_long, _lat| true,
+        |_| true,
         Vec3::ZERO,
         kavrayskiy_vii,
         (CANVAS_SIZE.y - CANVAS_BORDER_THICKNESS * 2.0) / (PI),
@@ -67,7 +67,7 @@ pub fn draw_map(
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<ColorMaterial>>,
     map: &MapData,
-    points_filter_fn: impl Fn(f32, f32) -> bool,
+    points_filter_fn: impl Fn(Vec2) -> bool,
     position: Vec3,
     project_fn: impl Fn(Vec2) -> Vec2,
     ratio: f32,
@@ -82,7 +82,7 @@ pub fn draw_map(
 
 pub fn build_map_mesh(
     map: &MapData,
-    points_filter_fn: impl Fn(f32, f32) -> bool,
+    points_filter_fn: impl Fn(Vec2) -> bool,
     project_fn: impl Fn(Vec2) -> (Vec2),
     ratio: f32,
 ) -> Mesh {
@@ -90,11 +90,11 @@ pub fn build_map_mesh(
     let eps = 1e-6;
 
     for ring in &map.polylines {
-        for window in ring.windows(2) {
-            let a = window[0];
-            let b = window[1];
+        for segment in ring.windows(2) {
+            let a = segment[0];
+            let b = segment[1];
 
-            if !points_filter_fn(a.x, a.y) || !points_filter_fn(b.x, b.y) {
+            if !points_filter_fn(a) || !points_filter_fn(b) {
                 continue;
             }
 
