@@ -15,3 +15,5 @@ pub static OVERLAYS_Z_INDEX: f32 = 3.0;
 pub static POLARS_RADIUS: f32 = 560.0;
 
 pub static MAIN_MAP_MEDIAN_SEGMENTS: usize = 128;
+
+pub static MAP_SHAPE_FILEPATH: &str = "data/raw/natural_earth/ne_110m_land/ne_110m_land.shp";

@@ -3,15 +3,15 @@ use std::f32::consts::PI;
 use super::components::CircleGraticuleGrid;
 use super::graticule::setup_circle_graticule;
 use crate::constant::{
-    CANVAS_BORDER_THICKNESS, CANVAS_BOT, CANVAS_LEFT, CANVAS_MARGIN, CANVAS_SIZE, CANVAS_TOP,
-    OVERLAYS_Z_INDEX, POLARS_RADIUS,
+    CANVAS_BORDER_THICKNESS, CANVAS_BOT, CANVAS_LEFT, CANVAS_SIZE, CANVAS_TOP, OVERLAYS_Z_INDEX,
+    POLARS_RADIUS,
 };
 use crate::ecs::MapSettings;
 use crate::layers::graticule::setup_pseudocylindrical_graticule;
 use crate::palette::PARCHMENT_INK;
 use crate::projection::{kavrayskiy_vii, max_projected_radius, parallel_ratio};
 use crate::render::graticule::indicator::GraticuleRingMaterial;
-use crate::render::graticule::{spawn_kavrayskiy_vii_graticule, KavrayskiyViiGraticuleMaterial};
+use crate::render::graticule::KavrayskiyViiGraticuleMaterial;
 use crate::render::primitives::circle::CircleMaterial;
 use bevy::prelude::*;
 

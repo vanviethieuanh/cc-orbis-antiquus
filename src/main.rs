@@ -17,6 +17,7 @@ use layers::overlays::setup_overlays_system;
 use layers::paper::setup_paper_system;
 
 use crate::cam::{move_camera, setup_camera, zoom_camera, CameraSettings};
+use crate::ecs::load_map;
 use crate::palette::PARCHMENT_BG;
 use crate::render::graticule::indicator::GraticuleRingMaterial;
 use crate::render::graticule::KavrayskiyViiGraticuleMaterial;
@@ -48,10 +49,14 @@ fn main() {
         .add_systems(
             Startup,
             (
-                setup_camera,
-                setup_map_system,
-                setup_overlays_system,
-                setup_paper_system,
+                load_map,
+                (
+                    setup_camera,
+                    setup_map_system,
+                    setup_overlays_system,
+                    setup_paper_system,
+                )
+                    .after(load_map),
             ),
         )
         .add_systems(Update, (zoom_camera, move_camera))

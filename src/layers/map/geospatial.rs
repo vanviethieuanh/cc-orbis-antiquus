@@ -5,9 +5,26 @@ use shapefile::Reader;
 use std::error::Error;
 
 use crate::constant::POLARS_RADIUS;
-use crate::ecs::MapSettings;
+use crate::ecs::{MapData, MapSettings};
 use crate::palette::PARCHMENT_INK;
 use crate::projection::perspective_pole;
+
+pub fn draw_map(
+    commands: &mut Commands,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    materials: &mut ResMut<Assets<ColorMaterial>>,
+    map: &MapData,
+    position: Vec3,
+    project_fn: impl Fn(f32, f32) -> (f32, f32),
+    ratio: f32,
+    color: Color,
+) {
+    commands.spawn((
+        Mesh2d(meshes.add(build_map_mesh(&map, project_fn, ratio))),
+        MeshMaterial2d(materials.add(color)),
+        Transform::default().with_translation(position),
+    ));
+}
 
 pub fn setup_pole(
     commands: &mut Commands,
@@ -97,4 +114,31 @@ fn spawn_line_strip(
         MeshMaterial2d(materials.add(ColorMaterial::from_color(color))),
         Transform::default().with_translation(Vec3::new(0.0, 0.0, z_index)),
     ));
+}
+
+pub fn build_map_mesh(
+    map: &MapData,
+    project_fn: impl Fn(f32, f32) -> (f32, f32),
+    ratio: f32,
+) -> Mesh {
+    let mut positions: Vec<[f32; 3]> = Vec::new();
+
+    for ring in &map.polylines {
+        for window in ring.windows(2) {
+            let a = window[0];
+            let b = window[1];
+
+            let (x1, y1) = project_fn(a.x, a.y);
+            let (x2, y2) = project_fn(b.x, b.y);
+
+            positions.push([x1 * ratio, y1 * ratio, 0.0]);
+            positions.push([x2 * ratio, y2 * ratio, 0.0]);
+        }
+    }
+
+    let mut mesh = Mesh::new(PrimitiveTopology::LineList, RenderAssetUsages::RENDER_WORLD);
+
+    mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
+
+    mesh
 }

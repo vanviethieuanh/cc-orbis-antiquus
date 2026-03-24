@@ -1,14 +1,23 @@
+use std::f32::consts::PI;
+
 use super::geospatial;
 use crate::{
-    constant::{CANVAS_BOT, CANVAS_LEFT, CANVAS_TOP, MAP_Z_INDEX, POLARS_RADIUS},
-    ecs::MapSettings,
+    constant::{
+        CANVAS_BORDER_THICKNESS, CANVAS_BOT, CANVAS_LEFT, CANVAS_SIZE, CANVAS_TOP, MAP_Z_INDEX,
+        POLARS_RADIUS,
+    },
+    ecs::{MapData, MapSettings},
+    layers::geospatial::draw_map,
+    palette::PARCHMENT_INK,
+    projection::kavrayskiy_vii,
 };
-use bevy::prelude::*;
+use bevy::{math::VectorSpace, prelude::*};
 
 pub fn setup_map_system(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    map: Res<MapData>,
     settings: Res<MapSettings>,
 ) {
     // North pole
@@ -36,4 +45,15 @@ pub fn setup_map_system(
     ) {
         eprintln!("Error loading map: {}", e);
     }
+
+    draw_map(
+        &mut commands,
+        &mut meshes,
+        &mut materials,
+        &map,
+        Vec3::ZERO,
+        kavrayskiy_vii,
+        (CANVAS_SIZE.y - CANVAS_BORDER_THICKNESS * 2.0) / (PI),
+        PARCHMENT_INK,
+    );
 }
