@@ -1,3 +1,4 @@
+use earcut::Earcut;
 use std::f32::consts::PI;
 
 use crate::{
@@ -9,7 +10,11 @@ use crate::{
     palette::PARCHMENT_INK,
     projection::{kavrayskiy_vii, perspective_polar_projection_clamped},
 };
-use bevy::{asset::RenderAssetUsages, mesh::PrimitiveTopology, prelude::*};
+use bevy::{
+    asset::RenderAssetUsages,
+    mesh::{Indices, PrimitiveTopology},
+    prelude::*,
+};
 
 pub fn setup_map_system(
     mut commands: Commands,
@@ -25,9 +30,7 @@ pub fn setup_map_system(
         &map,
         |_long, lat| lat.abs() != 90.0,
         Vec3::new(CANVAS_LEFT, CANVAS_TOP - POLARS_RADIUS * 2., MAP_Z_INDEX),
-        |long, lat| {
-            perspective_polar_projection_clamped(1.0, long, lat, 0.0, POLE_VIEWPOINT_DISTANCE, 1.0)
-        },
+        |c| perspective_polar_projection_clamped(1.0, c, 0.0, POLE_VIEWPOINT_DISTANCE, 1.0),
         POLARS_RADIUS,
         PARCHMENT_INK,
     );
@@ -40,9 +43,7 @@ pub fn setup_map_system(
         &map,
         |_long, lat| lat.abs() != 90.0,
         Vec3::new(CANVAS_LEFT, CANVAS_BOT, MAP_Z_INDEX),
-        |long, lat| {
-            perspective_polar_projection_clamped(1.0, long, lat, 0.0, POLE_VIEWPOINT_DISTANCE, -1.0)
-        },
+        |c| perspective_polar_projection_clamped(1.0, c, 0.0, POLE_VIEWPOINT_DISTANCE, -1.0),
         POLARS_RADIUS,
         PARCHMENT_INK,
     );
@@ -68,7 +69,7 @@ pub fn draw_map(
     map: &MapData,
     points_filter_fn: impl Fn(f32, f32) -> bool,
     position: Vec3,
-    project_fn: impl Fn(f32, f32) -> (f32, f32),
+    project_fn: impl Fn(Vec2) -> Vec2,
     ratio: f32,
     color: Color,
 ) {
@@ -82,7 +83,7 @@ pub fn draw_map(
 pub fn build_map_mesh(
     map: &MapData,
     points_filter_fn: impl Fn(f32, f32) -> bool,
-    project_fn: impl Fn(f32, f32) -> (f32, f32),
+    project_fn: impl Fn(Vec2) -> (Vec2),
     ratio: f32,
 ) -> Mesh {
     let mut positions: Vec<[f32; 3]> = Vec::new();
@@ -97,18 +98,15 @@ pub fn build_map_mesh(
                 continue;
             }
 
-            let (x1, y1) = project_fn(a.x, a.y);
-            let (x2, y2) = project_fn(b.x, b.y);
+            let pa = project_fn(a) * ratio;
+            let pb = project_fn(b) * ratio;
 
-            let va = Vec2::new(x1 * ratio, y1 * ratio);
-            let vb = Vec2::new(x2 * ratio, y2 * ratio);
-
-            if va.distance_squared(vb) < eps {
+            if pa.distance_squared(pb) < eps {
                 continue;
             }
 
-            positions.push([va.x, va.y, 0.0]);
-            positions.push([vb.x, vb.y, 0.0]);
+            positions.push([pa.x, pa.y, 0.0]);
+            positions.push([pb.x, pb.y, 0.0]);
         }
     }
 

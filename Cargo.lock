@@ -1885,6 +1885,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "clap",
+ "earcut",
  "geo",
  "shapefile",
 ]
@@ -2399,6 +2400,15 @@ name = "dpi"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d8b14ccef22fc6f5a8f4d7d768562a182c04ce9a3b3157b91390b52ddfdf1a76"
+
+[[package]]
+name = "earcut"
+version = "0.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "88459a2a8e3a514b6e6de38cf3aaa9250a894cb098f74a932db77fcc8341b6d0"
+dependencies = [
+ "num-traits",
+]
 
 [[package]]
 name = "earcutr"

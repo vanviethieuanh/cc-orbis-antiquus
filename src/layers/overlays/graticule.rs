@@ -1,6 +1,5 @@
 use crate::constant::MAIN_MAP_MEDIAN_SEGMENTS;
 use crate::render::graticule::indicator::{spawn_graticule_ring, GraticuleRingMaterial};
-use crate::render::graticule::KavrayskiyViiGraticuleMaterial;
 use crate::render::primitives::circle::{spawn_circle, CircleMaterial};
 
 use super::components::CircleGraticuleGrid;
@@ -129,7 +128,7 @@ pub fn setup_pseudocylindrical_graticule(
     meridians: Vec<f32>,
     parallels: Vec<f32>,
     color: Color,
-    projection_fn: impl Fn(f32, f32) -> (f32, f32),
+    projection_fn: impl Fn(Vec2) -> Vec2,
 ) {
     // Meridians
     {
@@ -137,8 +136,7 @@ pub fn setup_pseudocylindrical_graticule(
             let med = (meshes).add(Polyline2d::new(
                 (0..(MAIN_MAP_MEDIAN_SEGMENTS + 1))
                     .map(|i| -90. + i as f32 * (180.0 / MAIN_MAP_MEDIAN_SEGMENTS as f32))
-                    .map(|lat| projection_fn(long, lat))
-                    .map(|p| Vec2::new(p.0 * ratio, p.1 * ratio)),
+                    .map(|lat| projection_fn(Vec2::new(long, lat)) * ratio),
             ));
 
             commands.spawn((
@@ -152,11 +150,9 @@ pub fn setup_pseudocylindrical_graticule(
     // Parallels
     {
         for lat in parallels {
-            let (lx, ly) = projection_fn(-180.0, lat);
-            let (rx, ry) = projection_fn(180.0, lat);
             let med = (meshes).add(Segment2d::new(
-                Vec2::new(lx, ly) * ratio,
-                Vec2::new(rx, ry) * ratio,
+                projection_fn(Vec2::new(-180.0, lat)) * ratio,
+                projection_fn(Vec2::new(180.0, lat)) * ratio,
             ));
 
             commands.spawn((
