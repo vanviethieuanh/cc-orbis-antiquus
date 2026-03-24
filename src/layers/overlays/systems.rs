@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use super::components::CircleGraticuleGrid;
 use super::graticule::setup_circle_graticule;
 use crate::constant::{
@@ -73,23 +75,33 @@ pub fn setup_overlays_system(
     );
 
     // Main map
-    spawn_kavrayskiy_vii_graticule(
+    // spawn_kavrayskiy_vii_graticule(
+    //     &mut commands,
+    //     &mut meshes,
+    //     &mut kavrayskiy_vii_graticule_materials,
+    //     Vec3::new(0., 0., 0.),
+    //     Rectangle::new(
+    //         CANVAS_SIZE.x
+    //             - CANVAS_MARGIN.1
+    //             - CANVAS_MARGIN.3
+    //             - CANVAS_BORDER_THICKNESS * 2. - POLARS_RADIUS * 2., CANVAS_SIZE.y - CANVAS_BORDER_THICKNESS * 2.,
+    //     ),
+    //     36.,
+    //     18.,
+    //     0.01,
+    //     0.1,
+    //     PARCHMENT_INK.into(),
+    // );
+
+    setup_pseudocylindrical_graticule(
         &mut commands,
         &mut meshes,
-        &mut kavrayskiy_vii_graticule_materials,
+        &mut color_materials,
         Vec3::new(0., 0., 0.),
-        Rectangle::new(
-            CANVAS_SIZE.x
-                - CANVAS_MARGIN.1
-                - CANVAS_MARGIN.3
-                - CANVAS_BORDER_THICKNESS * 2.
-                - POLARS_RADIUS * 2.,
-            CANVAS_SIZE.y - CANVAS_BORDER_THICKNESS * 2.,
-        ),
-        36.,
-        18.,
-        0.01,
-        0.1,
-        PARCHMENT_INK.into(),
-    );
+        (CANVAS_SIZE.y - CANVAS_BORDER_THICKNESS * 2.0) / (PI),
+        (-180..=180).step_by(10).map(|n| n as f32).collect(),
+        (-90..=90).step_by(10).map(|n| n as f32).collect(),
+        PARCHMENT_INK,
+        kavrayskiy_vii,
+    )
 }

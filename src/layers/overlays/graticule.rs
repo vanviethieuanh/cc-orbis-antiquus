@@ -1,3 +1,4 @@
+use crate::constant::MAIN_MAP_MEDIAN_SEGMENTS;
 use crate::render::graticule::indicator::{spawn_graticule_ring, GraticuleRingMaterial};
 use crate::render::graticule::KavrayskiyViiGraticuleMaterial;
 use crate::render::primitives::circle::{spawn_circle, CircleMaterial};
@@ -123,17 +124,48 @@ pub fn setup_pseudocylindrical_graticule(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
     color_materials: &mut ResMut<Assets<ColorMaterial>>,
-    kavrayskiy_vii_graticule_materials: &mut ResMut<Assets<KavrayskiyViiGraticuleMaterial>>,
     position: Vec3,
-    parallels: Vec<f32>,
+    ratio: f32,
     meridians: Vec<f32>,
+    parallels: Vec<f32>,
+    color: Color,
     projection_fn: impl Fn(f32, f32) -> (f32, f32),
 ) {
     // Meridians
-    {};
+    {
+        for long in meridians {
+            let med = (meshes).add(Polyline2d::new(
+                (0..(MAIN_MAP_MEDIAN_SEGMENTS + 1))
+                    .map(|i| -90. + i as f32 * (180.0 / MAIN_MAP_MEDIAN_SEGMENTS as f32))
+                    .map(|lat| projection_fn(long, lat))
+                    .map(|p| Vec2::new(p.0 * ratio, p.1 * ratio)),
+            ));
+
+            commands.spawn((
+                Mesh2d(med),
+                MeshMaterial2d(color_materials.add(color)),
+                Transform::default().with_translation(position),
+            ));
+        }
+    };
 
     // Parallels
-    {};
+    {
+        for lat in parallels {
+            let (lx, ly) = projection_fn(-180.0, lat);
+            let (rx, ry) = projection_fn(180.0, lat);
+            let med = (meshes).add(Segment2d::new(
+                Vec2::new(lx, ly) * ratio,
+                Vec2::new(rx, ry) * ratio,
+            ));
+
+            commands.spawn((
+                Mesh2d(med),
+                MeshMaterial2d(color_materials.add(color)),
+                Transform::default().with_translation(position),
+            ));
+        }
+    };
 
     // Indicators
     {};
