@@ -1,4 +1,4 @@
-use bevy::{log::info, math::Vec2};
+use bevy::math::Vec2;
 use std::f32::consts::PI;
 
 pub fn azimuthal_equidistant_clipped(ring: &[Vec2], sign: f32, lat_limit: f32) -> Vec<Vec2> {
@@ -45,10 +45,6 @@ pub fn azimuthal_equidistant_clipped(ring: &[Vec2], sign: f32, lat_limit: f32) -
         None => true,
     };
 
-    if sign < 0.0 {
-        info!("Start inside: {}", start_inside);
-    }
-
     for window in ring.windows(2) {
         let a = window[0];
         let b = window[1];
@@ -71,10 +67,6 @@ pub fn azimuthal_equidistant_clipped(ring: &[Vec2], sign: f32, lat_limit: f32) -
                 let i = intersect(a, b);
                 let (pi, _) = project(&i);
 
-                if sign < 0.0 {
-                    info!("Exit at {}", i);
-                }
-
                 result.push(pa);
                 result.push(pi);
 
@@ -90,9 +82,6 @@ pub fn azimuthal_equidistant_clipped(ring: &[Vec2], sign: f32, lat_limit: f32) -
 
             (false, true) => {
                 let i = intersect(a, b);
-                if sign < 0.0 {
-                    info!("Enter at {}", i);
-                }
 
                 if start_inside {
                     if let Some(prev) = last_exit {
@@ -141,18 +130,6 @@ fn add_arc(
         let (p, _) = project(&Vec2::new(lon, lat));
         result.push(p);
     }
-}
-
-pub fn max_projected_radius(r: f32, d: f32) -> f32 {
-    let distance = d * r;
-
-    let sin_phi = r / distance;
-    let phi = sin_phi.asin();
-
-    let k = (distance - r) / (distance - r * phi.sin());
-    let rho = r * k * phi.cos();
-
-    rho
 }
 
 pub fn parallel_ratio(lat_deg: f32) -> f32 {
