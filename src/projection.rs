@@ -166,16 +166,18 @@ pub fn kavrayskiy_vii(c: Vec2) -> Vec2 {
     let lon = c.x.to_radians();
     let lat = c.y.to_radians();
 
-    Vec2::new(1.5 * lon * ((1.0 / 3.0) - (lat / PI).powi(2)).sqrt(), lat)
+    let base = ((1.0 / 3.0) - (lat / PI).powi(2)).sqrt();
+
+    // global widening
+    let global = 1.1;
+
+    // pole widening
+    let t = lat.abs() / (PI / 2.0);
+    let pole = 1.0 + 0.2 * t.powi(3);
+
+    Vec2::new(1.5 * lon * base * global * pole, lat)
 }
 
 pub fn kavrayskiy_vii_ring(ring: &[Vec2]) -> Vec<Vec2> {
-    ring.iter()
-        .map(|c| {
-            let lon = c.x.to_radians();
-            let lat = c.y.to_radians();
-
-            Vec2::new(1.5 * lon * ((1.0 / 3.0) - (lat / PI).powi(2)).sqrt(), lat)
-        })
-        .collect()
+    ring.iter().map(|&c| kavrayskiy_vii(c)).collect()
 }

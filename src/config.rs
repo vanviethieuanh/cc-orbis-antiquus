@@ -80,7 +80,7 @@ impl Default for MapConfig {
     fn default() -> Self {
         Self {
             canvas: CanvasConfig {
-                size: Vec2::new(10000., 5000.),
+                size: Vec2::new(11100., 5000.),
                 border_thickness: 20.,
                 margin: Edges {
                     top: 40.,
