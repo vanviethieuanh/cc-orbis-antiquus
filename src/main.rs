@@ -9,8 +9,6 @@ mod render;
 
 use bevy::prelude::*;
 use bevy::sprite_render::Material2dPlugin;
-use clap::Parser;
-use cli::Cli;
 use layers::map::setup_map_system;
 use layers::overlays::setup_overlays_system;
 use layers::paper::setup_paper_system;
@@ -23,8 +21,6 @@ use crate::render::graticule::KavrayskiyViiGraticuleMaterial;
 use crate::render::primitives::circle::CircleMaterial;
 
 fn main() {
-    let cli = Cli::parse();
-
     App::new()
         .insert_resource(ClearColor(PARCHMENT_BG))
         .add_plugins((

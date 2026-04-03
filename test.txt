@@ -1,0 +1,2 @@
+Starting
+task: Signal received: "interrupt"
