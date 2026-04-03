@@ -102,35 +102,46 @@ pub fn build_map_mesh(
     project_fn: impl Fn(&[Vec2]) -> Vec<Vec2>,
     ratio: f32,
 ) -> Mesh {
-    let projected_positions: Vec<[f32; 3]> = map_data
-        .polylines
-        .iter()
-        .flat_map(|ring| {
-            let projected = project_fn(ring);
+    let mut vertices: Vec<[f32; 3]> = Vec::new();
+    let mut indices: Vec<u32> = Vec::new();
+    let mut vertex_offset = 0u32;
 
-            let mut segments: Vec<[f32; 3]> = projected
-                .windows(2)
-                .flat_map(|w| {
-                    let a = w[0] * ratio;
-                    let b = w[1] * ratio;
+    let mut earcut = Earcut::new();
 
-                    [[a.x, a.y, 0.0], [b.x, b.y, 0.0]]
-                })
-                .collect();
+    for ring in &map_data.polylines {
+        let projected = project_fn(ring);
 
-            if let (Some(first), Some(last)) = (projected.first(), projected.last()) {
-                let a = *last * ratio;
-                let b = *first * ratio;
+        if projected.len() < 3 {
+            continue;
+        }
 
-                segments.push([a.x, a.y, 0.0]);
-                segments.push([b.x, b.y, 0.0]);
-            }
+        let points: Vec<[f64; 2]> = projected
+            .iter()
+            .map(|p| [(p.x * ratio) as f64, (p.y * ratio) as f64])
+            .collect();
 
-            segments
-        })
-        .collect();
+        let mut tris: Vec<usize> = Vec::new();
 
-    let mut mesh = Mesh::new(PrimitiveTopology::LineList, RenderAssetUsages::RENDER_WORLD);
-    mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, projected_positions);
+        earcut.earcut(points, &Vec::<usize>::new(), &mut tris);
+
+        for p in &projected {
+            vertices.push([p.x * ratio, p.y * ratio, 0.0]);
+        }
+
+        for i in tris {
+            indices.push(vertex_offset + i as u32);
+        }
+
+        vertex_offset += projected.len() as u32;
+    }
+
+    let mut mesh = Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::RENDER_WORLD,
+    );
+
+    mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vertices);
+    mesh.insert_indices(bevy::mesh::Indices::U32(indices));
+
     mesh
 }
