@@ -3,9 +3,10 @@ use std::f32::consts::PI;
 
 use crate::{
     config::MapConfig,
+    constants::{NORTH_SIGN, SOUTH_SIGN},
     ecs::MapData,
     palette::ColorTheme,
-    projection::{azimuthal_equidistant_clipped, kavrayskiy_vii_ring},
+    projection::{azimuthal_equidistant_clipped, kavrayskiy_vii_ring, parallel_ratio},
 };
 
 use bevy::{asset::RenderAssetUsages, mesh::PrimitiveTopology, prelude::*};
@@ -19,13 +20,7 @@ pub fn setup_map_system(
     theme: Res<ColorTheme>,
 ) {
     {
-        let lat_limit = 30.0f32;
-        let sign = 1.0;
-
-        let phi0 = lat_limit.to_radians();
-        let rho_max = PI / 2.0 - sign * phi0;
-        let scale = map_config.polar.radius / rho_max;
-
+        let scale = map_config.polar.radius / parallel_ratio(map_config.polar.lim_lat);
         let offset = map_config.polar.offset();
 
         // North pole
@@ -45,7 +40,7 @@ pub fn setup_map_system(
                     - map_config.canvas.margin.top,
                 map_config.z.map,
             ),
-            |c| azimuthal_equidistant_clipped(c, 1.0, 30.0),
+            |c| azimuthal_equidistant_clipped(c, NORTH_SIGN, NORTH_SIGN * map_config.polar.lim_lat),
             scale,
             theme.parchment.ink,
         );
@@ -67,7 +62,7 @@ pub fn setup_map_system(
                     + map_config.canvas.margin.bottom,
                 map_config.z.map,
             ),
-            |c| azimuthal_equidistant_clipped(c, -1.0, -30.0),
+            |c| azimuthal_equidistant_clipped(c, SOUTH_SIGN, SOUTH_SIGN * map_config.polar.lim_lat),
             scale,
             theme.parchment.ink,
         );

@@ -1,6 +1,7 @@
 mod cam;
 mod cli;
 mod config;
+mod constants;
 mod ecs;
 mod layers;
 mod palette;
