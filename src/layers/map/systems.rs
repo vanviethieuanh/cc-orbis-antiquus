@@ -2,12 +2,9 @@ use earcut::Earcut;
 use std::f32::consts::PI;
 
 use crate::{
-    constant::{
-        CANVAS_BORDER_THICKNESS, CANVAS_BOT, CANVAS_LEFT, CANVAS_MARGIN, CANVAS_SIZE, CANVAS_TOP,
-        MAP_Z_INDEX, POLARS_RADIUS,
-    },
+    config::MapConfig,
     ecs::MapData,
-    palette::PARCHMENT_INK,
+    palette::ColorTheme,
     projection::{azimuthal_equidistant_clipped, kavrayskiy_vii_ring},
 };
 
@@ -18,6 +15,8 @@ pub fn setup_map_system(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     map_data: Res<MapData>,
+    map_config: Res<MapConfig>,
+    theme: Res<ColorTheme>,
 ) {
     {
         let lat_limit = 30.0f32;
@@ -25,7 +24,9 @@ pub fn setup_map_system(
 
         let phi0 = lat_limit.to_radians();
         let rho_max = PI / 2.0 - sign * phi0;
-        let scale = POLARS_RADIUS / rho_max;
+        let scale = map_config.polar.radius / rho_max;
+
+        let offset = map_config.polar.offset();
 
         // North pole
         draw_map(
@@ -34,13 +35,19 @@ pub fn setup_map_system(
             &mut materials,
             &map_data,
             Vec3::new(
-                CANVAS_LEFT + POLARS_RADIUS + 18.0 + CANVAS_MARGIN.3,
-                CANVAS_TOP - POLARS_RADIUS - 18.0 - CANVAS_MARGIN.0,
-                MAP_Z_INDEX,
+                map_config.canvas.left()
+                    + map_config.polar.radius
+                    + offset
+                    + map_config.canvas.margin.left,
+                map_config.canvas.top()
+                    - map_config.polar.radius
+                    - offset
+                    - map_config.canvas.margin.top,
+                map_config.z.map,
             ),
             |c| azimuthal_equidistant_clipped(c, 1.0, 30.0),
             scale,
-            PARCHMENT_INK,
+            theme.parchment.ink,
         );
 
         // South pole
@@ -50,13 +57,19 @@ pub fn setup_map_system(
             &mut materials,
             &map_data,
             Vec3::new(
-                CANVAS_LEFT + POLARS_RADIUS + 18.0 + CANVAS_MARGIN.3,
-                CANVAS_BOT + POLARS_RADIUS + 18.0 + CANVAS_MARGIN.2,
-                MAP_Z_INDEX,
+                map_config.canvas.left()
+                    + map_config.polar.radius
+                    + offset
+                    + map_config.canvas.margin.left,
+                map_config.canvas.bottom()
+                    + map_config.polar.radius
+                    + offset
+                    + map_config.canvas.margin.bottom,
+                map_config.z.map,
             ),
             |c| azimuthal_equidistant_clipped(c, -1.0, -30.0),
             scale,
-            PARCHMENT_INK,
+            theme.parchment.ink,
         );
     }
 
@@ -68,11 +81,10 @@ pub fn setup_map_system(
         &map_data,
         Vec3::ZERO,
         kavrayskiy_vii_ring,
-        (CANVAS_SIZE.y - CANVAS_BORDER_THICKNESS * 2.0) / (PI),
-        PARCHMENT_INK,
+        (map_config.canvas.size.y - map_config.canvas.border_thickness * 2.0) / PI,
+        theme.parchment.ink,
     );
 }
-
 pub fn draw_map(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,

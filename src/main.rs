@@ -1,6 +1,6 @@
 mod cam;
 mod cli;
-mod constant;
+mod config;
 mod ecs;
 mod layers;
 mod palette;
@@ -14,15 +14,18 @@ use layers::overlays::setup_overlays_system;
 use layers::paper::setup_paper_system;
 
 use crate::cam::{move_camera, setup_camera, zoom_camera, CameraSettings};
+use crate::config::MapConfig;
 use crate::ecs::load_map;
-use crate::palette::PARCHMENT_BG;
+use crate::palette::ColorTheme;
 use crate::render::graticule::indicator::GraticuleRingMaterial;
 use crate::render::graticule::KavrayskiyViiGraticuleMaterial;
 use crate::render::primitives::circle::CircleMaterial;
 
 fn main() {
+    let color_theme = ColorTheme::default();
+
     App::new()
-        .insert_resource(ClearColor(PARCHMENT_BG))
+        .insert_resource(ClearColor(color_theme.parchment.bg))
         .add_plugins((
             DefaultPlugins.set(WindowPlugin {
                 primary_window: Some(Window {
@@ -40,6 +43,8 @@ fn main() {
             zoom_speed: 0.2,
             move_speed: 1000.,
         })
+        .insert_resource(MapConfig::default())
+        .insert_resource(color_theme)
         .add_systems(
             Startup,
             (

@@ -1,8 +1,7 @@
-use crate::constant::MAIN_MAP_MEDIAN_SEGMENTS;
+use crate::config::MapConfig;
 use crate::render::graticule::indicator::{spawn_graticule_ring, GraticuleRingMaterial};
 use crate::render::primitives::circle::{spawn_circle, CircleMaterial};
 
-use super::components::CircleGraticuleGrid;
 use bevy::prelude::*;
 
 pub fn setup_circle_graticule(
@@ -11,22 +10,25 @@ pub fn setup_circle_graticule(
     color_materials: &mut ResMut<Assets<ColorMaterial>>,
     circle_materials: &mut ResMut<Assets<CircleMaterial>>,
     graticule_ring_materials: &mut ResMut<Assets<GraticuleRingMaterial>>,
-    grid: &CircleGraticuleGrid,
-    parallel_ratio_fn: impl Fn(f32) -> f32,
+    map_config: &Res<MapConfig>,
     position: Vec3,
+    parallel_ratio_fn: impl Fn(f32) -> f32,
+    parallels: &Vec<f32>,
+    meridians: usize,
+    ink_color: Color,
 ) {
     // Meridians
     {
-        let start_radius = if let Some(&highest_latitude) = (&grid.parallels).last() {
-            (&parallel_ratio_fn)(highest_latitude) * grid.radius
+        let start_radius = if let Some(&highest_latitude) = parallels.last() {
+            (&parallel_ratio_fn)(highest_latitude) * map_config.polar.radius
         } else {
             0.0
         };
 
-        let end_radius = grid.radius + 3. * grid.graticule_ring_thickness;
+        let end_radius = map_config.polar.radius + 3. * map_config.polar.ring_thickness;
 
-        for i in 0..grid.meridians {
-            let angle = (i as f32 / grid.meridians as f32) * std::f32::consts::TAU;
+        for i in 0..meridians {
+            let angle = (i as f32 / meridians as f32) * std::f32::consts::TAU;
             let x_outer = end_radius * angle.sin();
             let y_outer = -end_radius * angle.cos();
             let x_inner = start_radius * angle.sin();
@@ -39,7 +41,7 @@ pub fn setup_circle_graticule(
 
             commands.spawn((
                 Mesh2d(mesh_handle),
-                MeshMaterial2d(color_materials.add(grid.meridian_color)),
+                MeshMaterial2d(color_materials.add(ink_color)),
                 Transform::default().with_translation(position),
             ));
         }
@@ -47,8 +49,8 @@ pub fn setup_circle_graticule(
 
     // Parallels
     {
-        let outer_radius: f32 = grid.radius;
-        for &latitude in &grid.parallels {
+        let outer_radius: f32 = map_config.polar.radius;
+        for &latitude in parallels {
             spawn_circle(
                 commands,
                 meshes,
@@ -57,7 +59,7 @@ pub fn setup_circle_graticule(
                 parallel_ratio_fn(latitude) * outer_radius * 2.0,
                 1.0,
                 0.5,
-                grid.parallel_color.into(),
+                ink_color.into(),
                 Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
             );
         }
@@ -69,10 +71,10 @@ pub fn setup_circle_graticule(
         meshes,
         circle_materials,
         position,
-        2.0 * grid.radius,
-        grid.boundary_thickness,
+        2.0 * map_config.polar.radius,
+        map_config.polar.ring_line_thickness,
         0.5,
-        grid.boundary_color.into(),
+        ink_color.into(),
         Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
     );
 
@@ -84,12 +86,12 @@ pub fn setup_circle_graticule(
         position,
         // 0.9 make the right slightly tigher to inner border, avoid render leak create a
         //   slight white ring.
-        2.0 * (grid.radius + grid.graticule_ring_thickness * 0.9),
+        2.0 * (map_config.polar.radius + map_config.polar.ring_thickness * 0.9),
         360.,
-        grid.graticule_ring_thickness,
+        map_config.polar.ring_thickness,
         0.5,
         0.025,
-        grid.boundary_color.into(),
+        ink_color.into(),
     );
 
     // Second boundary circle
@@ -98,10 +100,10 @@ pub fn setup_circle_graticule(
         meshes,
         circle_materials,
         position,
-        2.0 * (grid.radius + grid.graticule_ring_thickness),
-        grid.boundary_thickness,
+        2.0 * (map_config.polar.radius + map_config.polar.ring_thickness),
+        map_config.polar.ring_line_thickness,
         0.5,
-        grid.boundary_color.into(),
+        ink_color.into(),
         Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
     );
 
@@ -111,16 +113,17 @@ pub fn setup_circle_graticule(
         meshes,
         circle_materials,
         position,
-        2.0 * (grid.radius + 3. * grid.graticule_ring_thickness),
-        grid.boundary_thickness,
+        2.0 * (map_config.polar.radius + 3. * map_config.polar.ring_thickness),
+        map_config.polar.ring_line_thickness,
         0.5,
-        grid.boundary_color.into(),
+        ink_color.into(),
         Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
     );
 }
 
 pub fn setup_pseudocylindrical_graticule(
     commands: &mut Commands,
+    map_config: &Res<MapConfig>,
     meshes: &mut ResMut<Assets<Mesh>>,
     color_materials: &mut ResMut<Assets<ColorMaterial>>,
     position: Vec3,
@@ -134,8 +137,8 @@ pub fn setup_pseudocylindrical_graticule(
     {
         for long in meridians {
             let med = (meshes).add(Polyline2d::new(
-                (0..(MAIN_MAP_MEDIAN_SEGMENTS + 1))
-                    .map(|i| -90. + i as f32 * (180.0 / MAIN_MAP_MEDIAN_SEGMENTS as f32))
+                (0..(map_config.main_map.median_segments + 1))
+                    .map(|i| -90. + i as f32 * (180.0 / map_config.main_map.median_segments as f32))
                     .map(|lat| projection_fn(Vec2::new(long, lat)) * ratio),
             ));
 

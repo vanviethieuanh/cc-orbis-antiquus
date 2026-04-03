@@ -1,7 +1,6 @@
 use std::error::Error;
 
-use crate::cli::Cli;
-use crate::constant::MAP_SHAPE_FILEPATH;
+use crate::{cli::Cli, config::MapConfig};
 use bevy::prelude::*;
 use shapefile::{Reader, Shape};
 
@@ -10,8 +9,9 @@ pub struct MapData {
     pub polylines: Vec<Vec<Vec2>>,
 }
 
-pub fn load_map(mut commands: Commands) {
-    let mut reader = Reader::from_path(MAP_SHAPE_FILEPATH).expect("failed to open shapefile");
+pub fn load_map(mut commands: Commands, map_config: Res<MapConfig>) {
+    let mut reader =
+        Reader::from_path(map_config.data.shape_filepath).expect("failed to open shapefile");
 
     let mut polylines = Vec::new();
 

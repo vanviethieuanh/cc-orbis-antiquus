@@ -155,14 +155,11 @@ pub fn max_projected_radius(r: f32, d: f32) -> f32 {
     rho
 }
 
-pub fn parallel_ratio(lat_deg: f32, r: f32, d: f32) -> f32 {
+pub fn parallel_ratio(lat_deg: f32) -> f32 {
+    const R: f32 = 1.0;
     let phi = lat_deg.to_radians();
-    let d_abs = d * r;
-
-    let rho_phi = r * ((d_abs - r) / (d_abs - r * phi.sin())) * phi.cos();
-    let rho_max = max_projected_radius(r, d);
-
-    rho_phi / rho_max
+    let c = std::f32::consts::FRAC_PI_2 - phi;
+    R * c
 }
 
 /// Projects geographic coordinates (longitude and latitude) to the Kavrayskiy VII projection.
