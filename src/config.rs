@@ -59,6 +59,7 @@ impl PolarConfig {
 #[derive(Debug, Resource)]
 pub struct MainMapConfig {
     pub median_segments: usize,
+    pub borders_spacings: Vec<f32>,
 }
 
 #[derive(Debug, Resource)]
@@ -103,7 +104,8 @@ impl Default for MapConfig {
                 lim_lat: 30.0,
             },
             main_map: MainMapConfig {
-                median_segments: 128,
+                median_segments: 64,
+                borders_spacings: vec![12.0, 36.0, 60.0],
             },
             data: DataConfig {
                 shape_filepath: "data/raw/natural_earth/ne_110m_land/ne_110m_land.shp",
