@@ -1,6 +1,5 @@
 use crate::config::MapConfig;
 use crate::render::graticule::indicator::{spawn_graticule_ring, GraticuleRingMaterial};
-use crate::render::primitives::circle::{spawn_circle, CircleMaterial};
 
 use bevy::prelude::*;
 
@@ -8,7 +7,6 @@ pub fn setup_circle_graticule(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
     color_materials: &mut ResMut<Assets<ColorMaterial>>,
-    circle_materials: &mut ResMut<Assets<CircleMaterial>>,
     graticule_ring_materials: &mut ResMut<Assets<GraticuleRingMaterial>>,
     map_config: &Res<MapConfig>,
     position: Vec3,
@@ -29,20 +27,25 @@ pub fn setup_circle_graticule(
 
         for i in 0..meridians {
             let angle = (i as f32 / meridians as f32) * std::f32::consts::TAU;
-            let x_outer = end_radius * angle.sin();
-            let y_outer = -end_radius * angle.cos();
-            let x_inner = start_radius * angle.sin();
-            let y_inner = -start_radius * angle.cos();
 
-            let mesh_handle = (meshes).add(Segment2d::new(
-                Vec2::new(x_inner, y_inner),
-                Vec2::new(x_outer, y_outer),
-            ));
+            let dir = Vec2::new(angle.sin(), -angle.cos());
+
+            let start = dir * start_radius;
+            let end = dir * end_radius;
+
+            let length = (end - start).length();
+            let mid = (start + end) * 0.5;
+
+            let mesh_handle = meshes.add(Rectangle::new(1.0, 1.0));
 
             commands.spawn((
                 Mesh2d(mesh_handle),
                 MeshMaterial2d(color_materials.add(ink_color)),
-                Transform::default().with_translation(position),
+                Transform {
+                    translation: (mid.extend(0.0) + position),
+                    rotation: Quat::from_rotation_z(angle),
+                    scale: Vec3::new(map_config.polar.stroke_thickness, length, 1.0),
+                },
             ));
         }
     };
@@ -51,31 +54,27 @@ pub fn setup_circle_graticule(
     {
         let outer_radius: f32 = map_config.polar.radius;
         for &latitude in parallels {
-            spawn_circle(
+            draw_ring(
                 commands,
                 meshes,
-                circle_materials,
+                color_materials,
+                parallel_ratio_fn(latitude) * outer_radius,
+                map_config.polar.stroke_thickness,
                 position,
-                parallel_ratio_fn(latitude) * outer_radius * 2.0,
-                1.0,
-                0.5,
-                ink_color.into(),
-                Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
+                ink_color,
             );
         }
     };
 
     // First boundary circle
-    spawn_circle(
+    draw_ring(
         commands,
         meshes,
-        circle_materials,
+        color_materials,
+        map_config.polar.radius,
+        map_config.polar.stroke_thickness,
         position,
-        2.0 * map_config.polar.radius,
-        map_config.polar.ring_line_thickness,
-        0.5,
-        ink_color.into(),
-        Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
+        ink_color,
     );
 
     // spawn_graticule_ring
@@ -95,29 +94,25 @@ pub fn setup_circle_graticule(
     );
 
     // Second boundary circle
-    spawn_circle(
+    draw_ring(
         commands,
         meshes,
-        circle_materials,
+        color_materials,
+        map_config.polar.radius + map_config.polar.ring_thickness,
+        map_config.polar.stroke_thickness,
         position,
-        2.0 * (map_config.polar.radius + map_config.polar.ring_thickness),
-        map_config.polar.ring_line_thickness,
-        0.5,
-        ink_color.into(),
-        Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
+        ink_color,
     );
 
     // Third boundary circle
-    spawn_circle(
+    draw_ring(
         commands,
         meshes,
-        circle_materials,
+        color_materials,
+        map_config.polar.radius + 3.0 * map_config.polar.ring_thickness,
+        map_config.polar.stroke_thickness,
         position,
-        2.0 * (map_config.polar.radius + 3. * map_config.polar.ring_thickness),
-        map_config.polar.ring_line_thickness,
-        0.5,
-        ink_color.into(),
-        Color::srgba(0.0, 0.0, 0.0, 0.0).into(),
+        ink_color,
     );
 }
 
@@ -171,4 +166,26 @@ pub fn setup_pseudocylindrical_graticule(
 
     // Notes
     {};
+}
+
+fn draw_ring(
+    commands: &mut Commands<'_, '_>,
+    meshes: &mut ResMut<'_, Assets<Mesh>>,
+    color_materials: &mut ResMut<'_, Assets<ColorMaterial>>,
+    radius: f32,
+    stroke_thickness: f32,
+    position: Vec3,
+    ink_color: Color,
+) {
+    let mesh_handle = (meshes).add(
+        Annulus::new(radius, radius + stroke_thickness)
+            .mesh()
+            .resolution(64)
+            .build(),
+    );
+    commands.spawn((
+        Mesh2d(mesh_handle),
+        MeshMaterial2d(color_materials.add(ink_color)),
+        Transform::default().with_translation(position),
+    ));
 }

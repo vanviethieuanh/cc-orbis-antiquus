@@ -6,14 +6,12 @@ use crate::layers::graticule::setup_pseudocylindrical_graticule;
 use crate::palette::ColorTheme;
 use crate::projection::{kavrayskiy_vii, parallel_ratio};
 use crate::render::graticule::indicator::GraticuleRingMaterial;
-use crate::render::primitives::circle::CircleMaterial;
 use bevy::prelude::*;
 
 pub fn setup_overlays_system(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut color_materials: ResMut<Assets<ColorMaterial>>,
-    mut circle_materials: ResMut<Assets<CircleMaterial>>,
     mut graticule_ring_materials: ResMut<Assets<GraticuleRingMaterial>>,
     map_config: Res<MapConfig>,
     theme: Res<ColorTheme>,
@@ -38,7 +36,6 @@ pub fn setup_overlays_system(
             &mut commands,
             &mut meshes,
             &mut color_materials,
-            &mut circle_materials,
             &mut graticule_ring_materials,
             &map_config,
             Vec3::new(
@@ -63,7 +60,6 @@ pub fn setup_overlays_system(
             &mut commands,
             &mut meshes,
             &mut color_materials,
-            &mut circle_materials,
             &mut graticule_ring_materials,
             &map_config,
             Vec3::new(

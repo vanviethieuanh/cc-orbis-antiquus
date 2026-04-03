@@ -44,9 +44,9 @@ pub struct PolarConfig {
     pub radius: f32,
 
     pub ring_thickness: f32,
-    pub ring_line_thickness: f32,
     pub ring_spacing_factor: f32,
 
+    pub stroke_thickness: f32,
     pub lim_lat: f32,
 }
 
@@ -98,7 +98,7 @@ impl Default for MapConfig {
 
                 ring_thickness: 6.0,
                 ring_spacing_factor: 3.0,
-                ring_line_thickness: 1.0,
+                stroke_thickness: 0.5,
 
                 lim_lat: 30.0,
             },

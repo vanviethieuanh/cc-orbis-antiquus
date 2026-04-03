@@ -1,4 +1,4 @@
-use bevy::math::Vec2;
+use bevy::{log::info, math::Vec2};
 use std::f32::consts::PI;
 
 pub fn azimuthal_equidistant_clipped(ring: &[Vec2], sign: f32, lat_limit: f32) -> Vec<Vec2> {
@@ -51,6 +51,11 @@ pub fn azimuthal_equidistant_clipped(ring: &[Vec2], sign: f32, lat_limit: f32) -
 
         let (pa, rho_a) = project(&a);
         let (pb, rho_b) = project(&b);
+
+        // South pole have noises
+        if pa.x.abs() < 1e-5 && sign == -1.0 {
+            continue;
+        }
 
         let inside_a = rho_a <= rho_max;
         let inside_b = rho_b <= rho_max;
