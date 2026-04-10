@@ -183,30 +183,24 @@ pub fn setup_overlays_system(
 
         spawn_vertical_text(
             &mut commands,
-            map_config.note.under_title.text,
+            map_config.note.main_note.text,
             fonts.bold.clone(),
             Vec3::new(
-                map_config.canvas.right() - map_config.note.under_title.font_size * 0.5,
+                map_config.canvas.right() - map_config.note.main_note.font_size * 0.5,
                 map_config.canvas.top()
                     - map_config.note.title.font_size * ((0.4 + 1.3) * 2.0)
-                    - map_config.note.under_title.font_size * 0.5,
+                    - map_config.note.main_note.font_size * 0.5,
                 map_config.z.overlays,
             ),
             VerticalTextLayout {
                 max_chars_per_column: 136,
-                char_spacing: map_config.note.under_title.font_size * 1.15,
-                column_spacing: map_config.note.under_title.font_size * 1.7,
+                char_spacing: map_config.note.main_note.font_size * 1.15,
+                column_spacing: map_config.note.main_note.font_size * 1.7,
                 mode: VerticalRL,
             },
-            map_config.note.under_title.font_size,
+            map_config.note.main_note.font_size,
             theme.parchment.ink,
         );
     }
 }
 
-fn verticalize(s: &str) -> String {
-    s.chars()
-        .map(|c| c.to_string())
-        .collect::<Vec<_>>()
-        .join("\n")
-}
