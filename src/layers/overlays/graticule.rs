@@ -195,9 +195,6 @@ pub fn setup_pseudocylindrical_graticule(
 
     // Indicators
     {};
-
-    // Notes
-    {};
 }
 
 fn draw_ring(

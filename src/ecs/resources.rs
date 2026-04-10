@@ -9,7 +9,7 @@ pub struct MapData {
     pub polylines: Vec<Vec<Vec2>>,
 }
 
-pub fn load_map(mut commands: Commands, map_config: Res<MapConfig>) {
+pub fn load_map(map_config: &MapConfig) -> MapData {
     let mut reader =
         Reader::from_path(map_config.data.shape_filepath).expect("failed to open shapefile");
 
@@ -33,5 +33,24 @@ pub fn load_map(mut commands: Commands, map_config: Res<MapConfig>) {
         };
     }
 
-    commands.insert_resource(MapData { polylines });
+    MapData { polylines }
+}
+
+#[derive(Resource)]
+pub struct FontAssets {
+    pub bold: Handle<Font>,
+    pub regular: Handle<Font>,
+    pub light: Handle<Font>,
+}
+
+pub fn load_fonts(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    map_config: Res<MapConfig>,
+) {
+    commands.insert_resource(FontAssets {
+        bold: asset_server.load(map_config.note.font.bold),
+        regular: asset_server.load(map_config.note.font.regular),
+        light: asset_server.load(map_config.note.font.light),
+    });
 }

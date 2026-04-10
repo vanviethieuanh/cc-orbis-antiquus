@@ -28,3 +28,5 @@ target
 data
 .task
 out
+
+.DS_Store
