@@ -108,57 +108,52 @@ pub fn setup_overlays_system(
     );
 
     {
+        let line_thickness = map_config.note.lines.divider.value();
+
         {
-            let handler = (meshes).add(Segment2d::new(
-                Vec2::new(
-                    max_x + map_config.note.spacing.main,
-                    map_config.canvas.top(),
-                ),
-                Vec2::new(
-                    max_x + map_config.note.spacing.main,
-                    map_config.canvas.bottom(),
-                ),
-            ));
+            let height = map_config.canvas.top() - map_config.canvas.bottom();
+            let handler = meshes.add(Rectangle::new(line_thickness, height));
             commands.spawn((
                 Mesh2d(handler),
                 MeshMaterial2d(color_materials.add(theme.parchment.ink)),
-                Transform::default().with_translation(Vec3::ZERO),
+                Transform::default().with_translation(Vec3::new(
+                    max_x + map_config.note.spacing.main,
+                    0.0,
+                    map_config.z.overlays,
+                )),
             ));
         }
 
+        // Horizontal line below title
         {
-            let handler = (meshes).add(Segment2d::new(
-                Vec2::new(
-                    max_x + map_config.note.spacing.main,
-                    map_config.canvas.top() - map_config.note.title.font_size * 0.4,
-                ),
-                Vec2::new(
-                    map_config.canvas.right(),
-                    map_config.canvas.top() - map_config.note.title.font_size * 0.4,
-                ),
-            ));
+            let width = map_config.canvas.right() - (max_x + map_config.note.spacing.main);
+            let y_pos = map_config.canvas.top() - map_config.note.title.font_size * 0.4;
+            let handler = meshes.add(Rectangle::new(width, line_thickness));
             commands.spawn((
                 Mesh2d(handler),
                 MeshMaterial2d(color_materials.add(theme.parchment.ink)),
-                Transform::default().with_translation(Vec3::ZERO),
+                Transform::default().with_translation(Vec3::new(
+                    max_x + map_config.note.spacing.main + width / 2.0,
+                    y_pos,
+                    map_config.z.overlays,
+                )),
             ));
         }
 
+        // Horizontal line below under-title section
         {
-            let handler = (meshes).add(Segment2d::new(
-                Vec2::new(
-                    max_x + map_config.note.spacing.main,
-                    map_config.canvas.top() - map_config.note.title.font_size * ((0.4 + 1.3) * 2.0),
-                ),
-                Vec2::new(
-                    map_config.canvas.right(),
-                    map_config.canvas.top() - map_config.note.title.font_size * ((0.4 + 1.3) * 2.0),
-                ),
-            ));
+            let width = map_config.canvas.right() - (max_x + map_config.note.spacing.main);
+            let y_pos =
+                map_config.canvas.top() - map_config.note.title.font_size * ((0.4 + 1.3) * 2.0);
+            let handler = meshes.add(Rectangle::new(width, line_thickness));
             commands.spawn((
                 Mesh2d(handler),
                 MeshMaterial2d(color_materials.add(theme.parchment.ink)),
-                Transform::default().with_translation(Vec3::ZERO),
+                Transform::default().with_translation(Vec3::new(
+                    max_x + map_config.note.spacing.main + width / 2.0,
+                    y_pos,
+                    map_config.z.overlays,
+                )),
             ));
         }
 
@@ -203,4 +198,3 @@ pub fn setup_overlays_system(
         );
     }
 }
-

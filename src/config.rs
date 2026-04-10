@@ -117,6 +117,40 @@ impl Default for NoteSpacingConfig {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum LineThickness {
+    Small,
+    Medium,
+    Large,
+}
+
+impl LineThickness {
+    pub fn value(&self) -> f32 {
+        match self {
+            LineThickness::Small => 0.5,
+            LineThickness::Medium => 1.0,
+            LineThickness::Large => 2.0,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct LineConfig {
+    pub border: LineThickness,
+    pub divider: LineThickness,
+    pub accent: LineThickness,
+}
+
+impl Default for LineConfig {
+    fn default() -> Self {
+        Self {
+            border: LineThickness::Medium,
+            divider: LineThickness::Large,
+            accent: LineThickness::Medium,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct NoteConfig {
     pub font_size: f32,
@@ -144,6 +178,7 @@ impl Default for FontConfig {
 pub struct NotesConfig {
     pub font: FontConfig,
     pub spacing: NoteSpacingConfig,
+    pub lines: LineConfig,
     pub title: NoteConfig,
     pub main_note: NoteConfig,
 }
@@ -178,6 +213,7 @@ impl Default for MapConfig {
             note: NotesConfig {
                 font: FontConfig::default(),
                 spacing: NoteSpacingConfig::default(),
+                lines: LineConfig::default(),
                 title: NoteConfig {
                     font_size: 160.0,
                     text: TITLE,
