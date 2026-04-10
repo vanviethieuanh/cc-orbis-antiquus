@@ -109,6 +109,7 @@ pub fn setup_overlays_system(
 
     {
         let line_thickness = map_config.note.lines.divider.value();
+        let mut current_y = map_config.canvas.top();
 
         {
             let height = map_config.canvas.top() - map_config.canvas.bottom();
@@ -139,62 +140,101 @@ pub fn setup_overlays_system(
                 )),
             ));
         }
+        current_y -= map_config.note.title.font_size * 0.4 + line_thickness;
 
-        // Horizontal line below under-title section
-        {
-            let width = map_config.canvas.right() - (max_x + map_config.note.spacing.main);
-            let y_pos =
-                map_config.canvas.top() - map_config.note.title.font_size * ((0.4 + 1.3) * 2.0);
-            let handler = meshes.add(Rectangle::new(width, line_thickness));
-            commands.spawn((
-                Mesh2d(handler),
-                MeshMaterial2d(color_materials.add(theme.parchment.ink)),
-                Transform::default().with_translation(Vec3::new(
-                    max_x + map_config.note.spacing.main + width / 2.0,
-                    y_pos,
-                    map_config.z.overlays,
-                )),
-            ));
-        }
-
+        // Map title
+        let title_line_height = map_config.note.title.font_size * 1.3;
+        let title_line_width = map_config.note.title.font_size * 1.1;
+        let max_chars_per_column = 2;
         spawn_vertical_text(
             &mut commands,
             map_config.note.title.text,
             fonts.bold.clone(),
             Vec3::new(
                 map_config.canvas.right() - map_config.note.title.font_size * 0.5,
-                map_config.canvas.top() - map_config.note.title.font_size * 0.5,
+                current_y,
                 map_config.z.overlays,
             ),
             VerticalTextLayout {
-                max_chars_per_column: 2,
-                char_spacing: map_config.note.title.font_size * 1.3,
-                column_spacing: map_config.note.title.font_size * 1.1,
+                max_chars_per_column,
+                char_spacing: title_line_height,
+                column_spacing: title_line_width,
                 mode: VerticalRL,
             },
             map_config.note.title.font_size,
             theme.parchment.ink,
         );
+        current_y += -title_line_height * max_chars_per_column as f32;
 
-        spawn_vertical_text(
-            &mut commands,
-            map_config.note.main_note.text,
-            fonts.bold.clone(),
-            Vec3::new(
-                map_config.canvas.right() - map_config.note.main_note.font_size * 0.5,
-                map_config.canvas.top()
-                    - map_config.note.title.font_size * ((0.4 + 1.3) * 2.0)
-                    - map_config.note.main_note.font_size * 0.5,
-                map_config.z.overlays,
-            ),
-            VerticalTextLayout {
-                max_chars_per_column: 136,
-                char_spacing: map_config.note.main_note.font_size * 1.15,
-                column_spacing: map_config.note.main_note.font_size * 1.7,
-                mode: VerticalRL,
-            },
-            map_config.note.main_note.font_size,
-            theme.parchment.ink,
-        );
+        // Horizontal line below under-title section
+        {
+            let width = map_config.canvas.right() - (max_x + map_config.note.spacing.main);
+            let handler = meshes.add(Rectangle::new(width, line_thickness));
+            commands.spawn((
+                Mesh2d(handler),
+                MeshMaterial2d(color_materials.add(theme.parchment.ink)),
+                Transform::default().with_translation(Vec3::new(
+                    max_x + map_config.note.spacing.main + width / 2.0,
+                    current_y,
+                    map_config.z.overlays,
+                )),
+            ));
+        }
+        current_y -= line_thickness;
+
+        // Main note
+        {
+            let main_note_line_height = map_config.note.main_note.font_size * 1.15;
+            let main_note_padding = map_config.note.main_note.font_size * 0.5;
+
+            let main_note_max_chars_per_column = 137;
+
+            let max_col = (map_config.note.main_note.text.chars().count() as f32
+                / main_note_max_chars_per_column as f32)
+                .ceil() as usize;
+            let notes_width = map_config.canvas.right()
+                - max_x
+                - map_config.note.spacing.main
+                - 2.0 * main_note_padding
+                - line_thickness;
+            let left_x = max_x + map_config.note.spacing.main + line_thickness;
+            let main_note_line_width = (notes_width) / max_col as f32;
+
+            spawn_vertical_text(
+                &mut commands,
+                map_config.note.main_note.text,
+                fonts.bold.clone(),
+                Vec3::new(
+                    map_config.canvas.right() - main_note_padding + line_thickness,
+                    current_y - map_config.note.main_note.font_size * 0.5, // margin top 0.5em
+                    map_config.z.overlays,
+                ),
+                VerticalTextLayout {
+                    max_chars_per_column: main_note_max_chars_per_column,
+                    char_spacing: main_note_line_height,
+                    column_spacing: main_note_line_width,
+                    mode: VerticalRL,
+                },
+                map_config.note.main_note.font_size,
+                theme.parchment.ink,
+            );
+
+            for i in 0..=max_col {
+                // Add line_thickness ensure the line overlap other borders
+                let height = current_y - map_config.canvas.bottom() + line_thickness;
+                let handler = meshes.add(Rectangle::new(line_thickness, height));
+
+                commands.spawn((
+                    Mesh2d(handler),
+                    MeshMaterial2d(color_materials.add(theme.parchment.ink)),
+                    Transform::default().with_translation(Vec3::new(
+                        left_x + main_note_padding + (i as f32) * main_note_line_width,
+                        // Move up mean draw from the separate line between border and the title
+                        current_y - (height / 2.0) + line_thickness,
+                        map_config.z.overlays,
+                    )),
+                ));
+            }
+        }
     }
 }
