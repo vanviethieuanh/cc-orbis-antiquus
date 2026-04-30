@@ -7,6 +7,7 @@ mod layers;
 mod palette;
 mod projection;
 mod render;
+mod utils;
 mod writing;
 
 use bevy::prelude::*;

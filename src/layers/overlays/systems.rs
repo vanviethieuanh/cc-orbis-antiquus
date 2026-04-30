@@ -3,7 +3,9 @@ use std::f32::consts::PI;
 use super::graticule::setup_circle_graticule;
 use crate::config::MapConfig;
 use crate::ecs::FontAssets;
+use crate::layers::celestial::spawn_nine_heavens_diagram;
 use crate::layers::graticule::setup_pseudocylindrical_graticule;
+use crate::layers::overlays::celestial::spawn_armillary_sphere;
 use crate::palette::ColorTheme;
 use crate::projection::{kavrayskiy_vii, parallel_ratio};
 use crate::render::graticule::indicator::GraticuleRingMaterial;
@@ -235,6 +237,47 @@ pub fn setup_overlays_system(
                     )),
                 ));
             }
+        }
+
+        // 九重天圖- Cửu Trùng Thiên Đồ - Diagram of the Nine Heavens.
+        // Geocentric btw
+        {
+            let radius = map_config.polar.radius * 0.7;
+            let position = Vec3::new(
+                (max_x) - radius,
+                map_config.canvas.top() - radius - map_config.note.spacing.main,
+                map_config.z.overlays,
+            );
+            spawn_nine_heavens_diagram(
+                &mut commands,
+                &mut meshes,
+                &mut color_materials,
+                &mut graticule_ring_materials,
+                &map_config,
+                &theme,
+                position,
+                radius,
+            );
+        }
+        // 天地儀- Thiên Địa Nghi - Heaven-and-Earth instrument
+        // Armillary Sphere: celestial sphere projection diagram
+        {
+            let radius = map_config.polar.radius * 0.7;
+            let position = Vec3::new(
+                (max_x) - radius,
+                map_config.canvas.bottom() + radius + map_config.note.spacing.main,
+                map_config.z.overlays,
+            );
+            spawn_armillary_sphere(
+                &mut commands,
+                &mut meshes,
+                &mut color_materials,
+                &mut graticule_ring_materials,
+                &map_config,
+                &theme,
+                position,
+                radius,
+            );
         }
     }
 }

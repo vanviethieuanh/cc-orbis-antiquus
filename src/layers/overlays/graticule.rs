@@ -1,5 +1,6 @@
 use crate::config::MapConfig;
 use crate::render::graticule::indicator::{spawn_graticule_ring, GraticuleRingMaterial};
+use crate::utils::draw_ring;
 
 use bevy::prelude::*;
 
@@ -195,28 +196,6 @@ pub fn setup_pseudocylindrical_graticule(
 
     // Indicators
     {};
-}
-
-fn draw_ring(
-    commands: &mut Commands<'_, '_>,
-    meshes: &mut ResMut<'_, Assets<Mesh>>,
-    color_materials: &mut ResMut<'_, Assets<ColorMaterial>>,
-    radius: f32,
-    stroke_thickness: f32,
-    position: Vec3,
-    ink_color: Color,
-) {
-    let mesh_handle = (meshes).add(
-        Annulus::new(radius, radius + stroke_thickness)
-            .mesh()
-            .resolution(64)
-            .build(),
-    );
-    commands.spawn((
-        Mesh2d(mesh_handle),
-        MeshMaterial2d(color_materials.add(ink_color)),
-        Transform::default().with_translation(position),
-    ));
 }
 
 fn liang_barsky_clip(p0: Vec2, p1: Vec2, min: Vec2, max: Vec2) -> Option<(Vec2, Vec2)> {
