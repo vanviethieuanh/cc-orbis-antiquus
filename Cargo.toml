@@ -9,6 +9,8 @@ clap = { version = "4.6.0", features = ["derive"] }
 earcut = "0.4.5"
 geo = "0.32.0"
 shapefile = "0.7.0"
+strum = { version = "0.28.0", features = ["derive", "strum_macros"] }
+strum_macros = "0.28.0"
 
 [profile.dev]
 opt-level = 1

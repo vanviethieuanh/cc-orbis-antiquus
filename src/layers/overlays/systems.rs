@@ -257,8 +257,10 @@ pub fn setup_overlays_system(
                 &theme,
                 position,
                 radius,
+                &fonts,
             );
         }
+
         // 天地儀- Thiên Địa Nghi - Heaven-and-Earth instrument
         // Armillary Sphere: celestial sphere projection diagram
         {
