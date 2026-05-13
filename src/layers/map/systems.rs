@@ -74,7 +74,7 @@ pub fn setup_map_system(
         &mut meshes,
         &mut materials,
         &map_data,
-        Vec3::ZERO,
+        Vec3::new(0.0, 0.0, map_config.z.map),
         kavrayskiy_vii_ring,
         (map_config.canvas.size.y - map_config.canvas.border_thickness * 2.0) / PI,
         theme.parchment.ink,

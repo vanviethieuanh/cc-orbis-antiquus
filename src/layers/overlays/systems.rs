@@ -101,7 +101,7 @@ pub fn setup_overlays_system(
         &map_config,
         &mut meshes,
         &mut color_materials,
-        Vec3::new(0., 0., 0.),
+        Vec3::new(0., 0., map_config.z.overlays),
         ratio,
         (-180..=180).step_by(10).map(|n| n as f32).collect(),
         (-90..=90).step_by(10).map(|n| n as f32).collect(),
