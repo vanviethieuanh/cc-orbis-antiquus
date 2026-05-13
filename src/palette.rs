@@ -19,10 +19,10 @@ impl Default for ColorTheme {
     fn default() -> Self {
         Self {
             parchment: ParchmentColors {
-                bg: Color::srgb(0.902, 0.827, 0.663),
-                light: Color::srgb(0.960, 0.920, 0.867),
-                medium: Color::srgb(0.878, 0.765, 0.596),
-                dark: Color::srgb(0.686, 0.584, 0.447),
+                bg: Color::srgb(0.920, 0.860, 0.640),
+                light: Color::srgb(0.965, 0.935, 0.820),
+                medium: Color::srgb(0.890, 0.800, 0.570),
+                dark: Color::srgb(0.700, 0.620, 0.420),
                 ink: Color::srgb(0.15, 0.10, 0.05),
                 accent: Color::srgb(0.835, 0.682, 0.420),
             },

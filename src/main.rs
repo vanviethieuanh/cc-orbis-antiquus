@@ -22,6 +22,7 @@ use crate::ecs::{load_fonts, load_map};
 use crate::palette::ColorTheme;
 use crate::render::graticule::indicator::GraticuleRingMaterial;
 use crate::render::graticule::KavrayskiyViiGraticuleMaterial;
+use crate::render::paper::ParchmentBgMaterial;
 use crate::render::primitives::circle::CircleMaterial;
 
 fn main() {
@@ -40,6 +41,7 @@ fn main() {
                 ..default()
             }),
             Material2dPlugin::<GraticuleRingMaterial>::default(),
+            Material2dPlugin::<ParchmentBgMaterial>::default(),
         ))
         .insert_resource(CameraSettings {
             zoom_range: 0.8..10.,
